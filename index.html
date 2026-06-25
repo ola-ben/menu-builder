@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/menu.svg" />
+    <meta name="theme-color" content="#ea580c" />
+
+    <!-- PWA / installable on iOS (Add to Home Screen) -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="MenuLink" />
+
+    <!-- Apply saved theme before paint to avoid a flash (light is the default) -->
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('qr-menu:theme') === 'dark') {
+            document.documentElement.classList.add('dark')
+          }
+        } catch (e) {}
+      })()
+    </script>
+
+    <title>MenuLink — Your Digital Menu + Table QR</title>
+    <meta
+      name="description"
+      content="Build a digital menu for your restaurant, get a QR code for your tables, and take orders on WhatsApp. Free and made for Nigerian food businesses."
+    />
+
+    <!-- Open Graph / WhatsApp / Facebook link preview -->
+    <!-- ⚠️ After deploying, replace https://menulink.vercel.app with your real Vercel URL -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="MenuLink" />
+    <meta property="og:title" content="MenuLink — Your Digital Menu + Table QR" />
+    <meta
+      property="og:description"
+      content="A digital menu with a QR code for every table. Diners scan, browse, and order on WhatsApp. Free, made for Nigerian food businesses."
+    />
+    <meta property="og:url" content="https://menulink.vercel.app" />
+    <meta property="og:image" content="https://menulink.vercel.app/og-cover.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter / X card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MenuLink — Your Digital Menu + Table QR" />
+    <meta
+      name="twitter:description"
+      content="A digital menu with a QR code for every table. Scan, browse, order on WhatsApp."
+    />
+    <meta name="twitter:image" content="https://menulink.vercel.app/og-cover.png" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
