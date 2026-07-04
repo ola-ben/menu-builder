@@ -12,87 +12,87 @@
 
 html,
 body {
-  /* Keep stray absolutely-positioned elements from widening the page and
-     letting it swipe left/right on mobile. `clip` avoids creating a scroll
-     container, so sticky headers still work. */
   overflow-x: clip;
   max-width: 100%;
 }
 
-body {
-  @apply text-slate-800 antialiased dark:text-slate-100;
-  /* Warm, layered “appetizing” backdrop — soft radial glows over a base tint.
-     The page itself stays light; the glows give depth without distraction. */
-  background-color: #fffaf5;
-  background-image:
-    radial-gradient(40rem 40rem at 100% -10%, rgba(251, 146, 60, 0.18), transparent 60%),
-    radial-gradient(36rem 36rem at -10% 10%, rgba(244, 114, 182, 0.12), transparent 55%),
-    radial-gradient(48rem 48rem at 50% 120%, rgba(251, 191, 36, 0.12), transparent 55%);
-  background-attachment: fixed;
+html {
+  scroll-behavior: smooth;
 }
 
-.dark body {
-  background-color: #0b0a09;
-  background-image:
-    radial-gradient(40rem 40rem at 100% -10%, rgba(234, 88, 12, 0.20), transparent 60%),
-    radial-gradient(36rem 36rem at -10% 10%, rgba(190, 24, 93, 0.14), transparent 55%),
-    radial-gradient(48rem 48rem at 50% 120%, rgba(120, 53, 15, 0.22), transparent 55%);
+body {
+  @apply bg-paper text-ink/75 antialiased dark:bg-ink dark:text-paper/65;
+  font-feature-settings: 'cv05' 1, 'ss01' 1;
+}
+
+::selection {
+  @apply bg-whatsapp-500/20 text-ink dark:text-paper;
 }
 
 @layer components {
-  /* Primary action — warm brand gradient */
+  /* Sharp corners, hairline borders, invert on hover. No gradients, no glows. */
+  
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow ring-1 ring-inset ring-white/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-glow;
+    @apply inline-flex items-center justify-center gap-2 border border-brand-500 bg-brand-500 px-6 py-3 text-sm font-medium tracking-tight text-white transition-colors duration-200 hover:bg-brand-600 hover:border-brand-600 disabled:pointer-events-none disabled:opacity-40;
   }
 
-  /* WhatsApp action — green gradient */
   .btn-whatsapp {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-whatsapp-500 to-whatsapp-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow-green ring-1 ring-inset ring-white/20 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 border border-whatsapp-600 bg-whatsapp-600 px-6 py-3 text-sm font-medium tracking-tight text-white transition-colors duration-200 hover:border-whatsapp-700 hover:bg-whatsapp-700 disabled:pointer-events-none disabled:opacity-40;
   }
 
-  /* Neutral / secondary action */
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/70 px-4 py-2.5 text-sm font-semibold text-slate-700 backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-white active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-800;
+    @apply inline-flex items-center justify-center gap-2 border border-ink/20 bg-transparent px-6 py-3 text-sm font-medium tracking-tight text-ink transition-colors duration-200 hover:border-ink hover:bg-ink/[0.03] disabled:pointer-events-none disabled:opacity-40 dark:border-paper/20 dark:text-paper dark:hover:border-paper dark:hover:bg-paper/[0.04];
   }
 
+  /* Hairline inputs */
   .input-base {
-    @apply w-full rounded-xl border border-slate-300 bg-white/80 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/15 dark:border-slate-700 dark:bg-slate-950/50 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:bg-slate-950;
+    @apply w-full border border-ink/15 bg-transparent px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-ink dark:border-paper/15 dark:text-paper dark:placeholder:text-paper/30 dark:focus:border-paper;
   }
 
-  /* Frosted, lifted card */
+  /* Surfaces - defined by hairline border alone, no shadow */
   .card {
-    @apply rounded-3xl border border-white/60 bg-white/80 shadow-soft backdrop-blur-sm transition-all duration-300 dark:border-white/5 dark:bg-slate-900/60;
+    @apply border border-ink/12 bg-paper dark:border-paper/12 dark:bg-white/[0.02];
   }
 
-  /* Interactive card variant — lifts on hover */
   .card-hover {
-    @apply hover:-translate-y-1 hover:border-brand-200/80 hover:shadow-lift dark:hover:border-brand-500/20;
+    @apply hover:-translate-y-0.5 hover:border-ink/20 transition-all duration-300 dark:hover:border-paper/20;
   }
 
-  /* Editorial "kicker" label — a short brand rule leading into the text.
-     Deliberately not a pill: flatter and more intentional than the stock badge. */
+  /* Kicker labels - mono, uppercase, editorial signature */
+  .badge {
+    @apply inline-flex items-center gap-1.5 border border-ink/15 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-ink/60 dark:border-paper/15 dark:text-paper/55;
+  }
+
   .eyebrow {
-    @apply inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.24em] text-brand-700 dark:text-brand-300;
-  }
-  .eyebrow::before {
-    content: '';
-    @apply h-px w-8 shrink-0 bg-gradient-to-r from-brand-500 to-amber-400;
+    @apply font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-ink/45 dark:text-paper/45;
   }
 
-  /* Gradient text accent */
+  .rule {
+    @apply border-ink/12 dark:border-paper/12;
+  }
+
+  /* Editorial solid text accent */
   .text-gradient {
-    @apply bg-gradient-to-r from-brand-600 via-orange-500 to-amber-500 bg-clip-text text-transparent;
+    @apply text-brand-500 dark:text-brand-400;
   }
 }
 
 @layer utilities {
-  /* Faint dotted grid overlay (use as an absolutely-positioned layer) */
   .bg-dots {
     background-image: radial-gradient(currentColor 1px, transparent 1px);
     background-size: 22px 22px;
   }
+  /* Hide scrollbar utility */
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
+/* Animations for simulated interface sections */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -121,4 +121,32 @@ body {
 
 .animate-slide-up {
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(0.8deg);
+  }
+}
+
+.animate-float-slow {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(1.03);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 4s ease-in-out infinite;
 }

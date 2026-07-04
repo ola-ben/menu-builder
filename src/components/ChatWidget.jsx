@@ -6,6 +6,31 @@ import { fetchOrders, summarizeOrders } from '../utils/orders.js'
 import { useOpenPanel, togglePanel, useNavMounted } from '../hooks/useFloatingPanel.js'
 
 /** Floating "Menu Assistant" chat bubble. AI (Groq) with rule-based fallback. */
+const playNotificationSound = () => {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext
+    if (!AudioContext) return
+    const ctx = new AudioContext()
+    const playTone = (freq, time, duration) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(freq, time)
+      gain.gain.setValueAtTime(0.06, time)
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + duration)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(time)
+      osc.stop(time + duration)
+    }
+    const now = ctx.currentTime
+    playTone(523.25, now, 0.15)
+    playTone(659.25, now + 0.12, 0.2)
+  } catch (err) {
+    console.warn('AudioContext failed:', err)
+  }
+}
+
 export default function ChatWidget() {
   const open = useOpenPanel() === 'chat'
   const navMounted = useNavMounted()
@@ -14,11 +39,24 @@ export default function ChatWidget() {
   const [suggestions, setSuggestions] = useState(WELCOME.suggestions)
   const [busy, setBusy] = useState(false)
   const [context, setContext] = useState('')
+  const [showPromo, setShowPromo] = useState(false)
   const endRef = useRef(null)
 
   useEffect(() => {
     if (open) endRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, busy, open])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const fired = sessionStorage.getItem('chat_promo_fired')
+      if (!fired) {
+        setShowPromo(true)
+        playNotificationSound()
+        sessionStorage.setItem('chat_promo_fired', 'true')
+      }
+    }, 2000)
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -58,11 +96,37 @@ export default function ChatWidget() {
 
   return (
     <>
+      {showPromo && !open && (
+        <div 
+          onClick={() => {
+            togglePanel('chat')
+            setShowPromo(false)
+          }}
+          className="fixed bottom-[1.35rem] right-20 z-50 flex cursor-pointer items-center gap-2 border border-brand-500 bg-paper px-3.5 py-2 font-mono text-[10px] uppercase tracking-wider text-brand-700 hover:bg-brand-100/50 dark:border-brand-500/30 dark:bg-slate-900 dark:text-brand-450 animate-fade-in"
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse" />
+          <span>👋 Need help? Ask assistant!</span>
+          <button 
+            type="button" 
+            onClick={(e) => {
+              e.stopPropagation()
+              setShowPromo(false)
+            }}
+            className="ml-1.5 text-xs font-bold hover:text-ink dark:hover:text-paper"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <button
         type="button"
-        onClick={() => togglePanel('chat')}
+        onClick={() => {
+          togglePanel('chat')
+          setShowPromo(false)
+        }}
         aria-label={open ? 'Close assistant' : 'Open menu assistant'}
-        className="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-glow transition-transform hover:scale-105"
+        className="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center bg-brand-500 text-white transition-transform hover:scale-105 hover:bg-brand-600 dark:border-brand-500/20 dark:bg-brand-500 dark:hover:bg-brand-600 shadow-none"
       >
         <Icon
           d={open ? 'M6 18L18 6M6 6l12 12' : 'M8 10.5h8M8 14h5m-9 6l3.5-2.5H18a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v14z'}
@@ -137,13 +201,13 @@ export default function ChatWidget() {
               onChange={(e) => setInput(e.target.value)}
               disabled={busy}
               placeholder={busy ? 'Thinking…' : 'Ask me anything…'}
-              className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-brand-500 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+              className="min-w-0 flex-1 border border-ink/15 bg-transparent px-3 py-2 text-sm text-ink outline-none focus:border-brand-500 disabled:opacity-50 dark:border-paper/15 dark:bg-slate-950 dark:text-paper"
             />
             <button
               type="submit"
               disabled={busy}
               aria-label="Send"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 text-white disabled:opacity-50"
+              className="grid h-9 w-9 shrink-0 place-items-center bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-50"
             >
               <Icon d="M4.5 19.5l15-7.5-15-7.5v6l9 1.5-9 1.5v6z" className="h-4 w-4" strokeWidth={2} />
             </button>

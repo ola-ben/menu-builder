@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import useMenu, { groupItemsByCategory } from '../hooks/useMenu.js'
 import useToast from '../hooks/useToast.js'
 import Toast from '../components/Toast.jsx'
@@ -11,6 +12,8 @@ import OrdersPanel from '../components/OrdersPanel.jsx'
 import BillingBanner from '../components/BillingBanner.jsx'
 import SectionNav from '../components/SectionNav.jsx'
 import Icon from '../components/Icon.jsx'
+import SetupWizard from '../components/SetupWizard.jsx'
+import AccountPanel from '../components/AccountPanel.jsx'
 
 // Sections the floating "jump to" menu links to (id must match the markup below).
 const NAV_SECTIONS = [
@@ -20,6 +23,7 @@ const NAV_SECTIONS = [
   { id: 'share', label: 'Share QR', d: 'M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z' },
   { id: 'add', label: 'Add item', d: 'M12 4.5v15m7.5-7.5h-15' },
   { id: 'items', label: 'Menu', d: 'M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z' },
+  { id: 'account', label: 'Backup', d: 'M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z' },
 ]
 
 function downloadQrPng(filename) {
@@ -44,6 +48,32 @@ export default function Dashboard() {
   } = useMenu()
   const { toast, showToast } = useToast()
   const [editing, setEditing] = useState(null)
+
+  const navigate = useNavigate()
+  const { tab } = useParams()
+  const activeTab = tab || ''
+
+  const hasRestaurant = Boolean(restaurant?.name?.trim() && restaurant?.whatsappNumber?.trim())
+
+  // Redirect based on restaurant configuration status
+  useEffect(() => {
+    if (!restaurant) return
+
+    if (!hasRestaurant) {
+      if (tab !== 'setup') {
+        navigate('/dashboard/setup', { replace: true })
+      }
+    } else {
+      if (tab === 'setup') {
+        navigate('/dashboard', { replace: true })
+      }
+    }
+  }, [tab, hasRestaurant, restaurant, navigate])
+
+  // Scroll to top on tab changes
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [activeTab])
 
   const menuUrl = useMemo(
     () => `${window.location.origin}/menu/${restaurant.id}`,
@@ -91,6 +121,23 @@ export default function Dashboard() {
     removeItem(item.id)
     if (editing?.id === item.id) setEditing(null)
     showToast('Item removed', 'info')
+  }
+
+  if (activeTab === 'setup') {
+    return (
+      <div className="space-y-8 animate-fade-in">
+        <header className="border-b border-slate-200 pb-8 dark:border-slate-800">
+          <span className="eyebrow">Your dashboard</span>
+          <h1 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+            My <span className="text-gradient">Menu</span>
+          </h1>
+          <p className="mt-2 text-slate-600 dark:text-slate-400">
+            Set up your restaurant, build your menu, and get a table QR.
+          </p>
+        </header>
+        <SetupWizard />
+      </div>
+    )
   }
 
   return (
@@ -237,6 +284,11 @@ export default function Dashboard() {
             ))}
           </div>
         )}
+      </section>
+
+      {/* Account Backup */}
+      <section id="account" className="scroll-mt-24">
+        <AccountPanel />
       </section>
 
       <Toast toast={toast} />

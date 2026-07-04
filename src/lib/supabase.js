@@ -36,3 +36,18 @@ export async function ensureSession() {
   }
   return data.session
 }
+
+/** Sign out the current user session. */
+export async function signOut() {
+  if (!supabase) return
+  await supabase.auth.signOut()
+}
+
+/** Check if the current user session is anonymous. */
+export async function isCurrentUserAnonymous() {
+  if (!supabase) return true
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return true
+  return session.user?.is_anonymous ?? (!session.user?.email || session.user?.app_metadata?.provider === 'anonymous')
+}
+

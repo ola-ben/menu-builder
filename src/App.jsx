@@ -34,7 +34,7 @@ export default function App() {
 
       <Route element={<Layout />}>
         <Route path="/" element={<Landing />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard/:tab?" element={<Dashboard />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="*" element={<NotFound />} />
       </Route>
