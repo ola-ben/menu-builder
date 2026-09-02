@@ -5,9 +5,9 @@ import Icon, { WhatsappIcon } from '../components/Icon.jsx'
 import { formatNaira } from '../utils/format.js'
 
 const TEST_MENU = [
-  { id: '1', name: 'Jollof Rice & Chicken', price: 3500, desc: 'Smoky party jollof served with fried plantain and peppered chicken.', img: '🍚' },
-  { id: '2', name: 'Catfish Pepper Soup', price: 2500, desc: 'Hot and spicy catfish soup infused with native herbs.', img: '🐟' },
-  { id: '3', name: 'Zobo Drink', price: 1000, desc: 'Hibiscus drink brewed with ginger, pineapple, and cloves.', img: '🍹' },
+  { id: '1', name: 'Jollof Rice & Chicken', price: 3500, desc: 'Smoky party jollof served with fried plantain and peppered chicken.', img: '/jollof.png' },
+  { id: '2', name: 'Catfish Pepper Soup', price: 2500, desc: 'Hot and spicy catfish soup infused with native herbs.', img: '/catfish.png' },
+  { id: '3', name: 'Zobo Drink', price: 1000, desc: 'Hibiscus drink brewed with ginger, pineapple, and cloves.', img: '/zobo.png' },
 ]
 
 export default function Landing() {
@@ -58,143 +58,244 @@ export default function Landing() {
 
   return (
     <div className="space-y-28">
-      {/* Hero Section */}
-      <section className="relative">
+      {/* Hero Section - Full Bleed Background */}
+      <section 
+        className="relative w-full bg-cover bg-center overflow-hidden border-b border-ink/12 dark:border-paper/12"
+        style={{
+          backgroundImage: "linear-gradient(to bottom, rgba(11, 11, 11, 0.45), rgba(11, 11, 11, 0.65)), url('/hero_food_bg.jpg')"
+        }}
+      >
+        {/* Glow Ribbon Loop (SVG at bottom) */}
+        <div className="absolute bottom-0 left-0 right-0 overflow-hidden pointer-events-none select-none h-32 z-10">
+          <svg className="w-full h-full" viewBox="0 0 1440 160" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path 
+              d="M-100,120 C200,120 300,140 400,110 C500,80 450,20 350,40 C250,60 300,120 500,130 C700,140 900,100 1100,115 C1300,130 1400,100 1600,120" 
+              stroke="#22c55e" 
+              strokeWidth="2.5" 
+              strokeLinecap="round"
+              className="opacity-75 filter drop-shadow-[0_0_6px_rgba(34,197,94,0.8)]"
+            />
+            <path 
+              d="M-80,125 C210,125 305,142 395,112 C485,82 440,25 355,42 C270,60 310,118 495,127 C680,136 880,102 1085,117 C1290,132 1390,102 1580,122" 
+              stroke="#10b981" 
+              strokeWidth="1" 
+              className="opacity-40 filter drop-shadow-[0_0_3px_rgba(16,185,129,0.5)]"
+            />
+          </svg>
+        </div>
 
-        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
-          {/* Left Column: Hero Text */}
-          <div className="text-center lg:text-left">
-            <p className="eyebrow flex items-center gap-2 justify-center lg:justify-start">
-              <span className="h-1.5 w-1.5 bg-whatsapp-500" />
-              For Bukas, Restaurants &amp; Food Vendors
-            </p>
-            <h1 className="mt-6 font-display text-5xl font-semibold leading-[0.98] tracking-display text-ink dark:text-paper sm:text-6xl lg:text-7xl">
-              Turn your menu into a <span className="text-gradient">Table QR</span> code
-            </h1>
-            <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-ink/65 dark:text-paper/60 lg:mx-0">
-              Customers scan, browse your menu with photos, and send their order directly to your WhatsApp. No expensive app installs. No printing costs. 100% commission-free.
-            </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
-              <Link to="/dashboard" className="btn-primary">
-                Build your menu — free
-              </Link>
-              <a href="#how-it-works" className="btn-ghost">
-                How it works
-              </a>
+        {/* Centered Hero Content Column */}
+        <div className="mx-auto w-full max-w-5xl lg:max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:py-36 md:px-8 lg:px-10 relative z-20">
+          <div className="grid items-center gap-12 lg:gap-16 xl:gap-20 lg:grid-cols-[1.15fr_0.85fr]">
+            {/* Left Column: Hero Text */}
+            <div className="text-center lg:text-left">
+              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-white/50 flex items-center gap-2 justify-center lg:justify-start">
+                <span className="h-1.5 w-1.5 bg-brand-500 animate-pulse" />
+                For Bukas, Restaurants &amp; Food Vendors
+              </p>
+              <h1 className="mt-6 font-display text-5xl font-semibold leading-[0.98] tracking-display text-glass sm:text-6xl lg:text-7xl xl:text-[5rem]">
+                From Smoky Jollof to Pepper Soup, serve guests in <span className="text-glass-amber">seconds</span>.
+              </h1>
+              <p className="mx-auto mt-6 max-w-xl lg:max-w-2xl text-base lg:text-lg leading-relaxed text-white/70 lg:mx-0">
+                Diners scan the table QR code to browse your menu, choose portions, and send their order straight to your WhatsApp. Zero commissions, zero printing costs.
+              </p>
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+                <Link to="/dashboard" className="btn-primary">
+                  Build your menu — free
+                </Link>
+                <a href="#how-it-works" className="btn-ghost border-white/20 text-white hover:border-white hover:bg-white/[0.04]">
+                  How it works
+                </a>
+              </div>
+
+              {/* Quick trust metrics */}
+              <div className="mt-12 grid max-w-md lg:max-w-lg grid-cols-3 gap-6 lg:gap-8 border-t border-white/10 pt-8 lg:mx-0">
+                <div>
+                  <dt className="font-display text-2xl font-bold text-white">Free</dt>
+                  <dd className="mt-0.5 text-xs text-white/50">30 days trial</dd>
+                </div>
+                <div>
+                  <dt className="font-display text-2xl font-bold text-white">0%</dt>
+                  <dd className="mt-0.5 text-xs text-white/50">Order commissions</dd>
+                </div>
+                <div>
+                  <dt className="font-display text-2xl font-bold text-white">10 Min</dt>
+                  <dd className="mt-0.5 text-xs text-white/50">Simple setup</dd>
+                </div>
+              </div>
             </div>
 
-            {/* Quick trust metrics */}
-            <div className="mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-ink/12 pt-8 dark:border-paper/12 lg:mx-0">
-              <div>
-                <dt className="font-display text-2xl font-bold text-ink dark:text-paper">Free</dt>
-                <dd className="mt-0.5 text-xs text-ink/45 dark:text-paper/45">14-day trial</dd>
+            {/* Right Column: Visual Overlap Composition */}
+            <div className="relative mx-auto w-full max-w-[380px] h-[500px] lg:max-w-[450px] lg:h-[540px]">
+              {/* Table Placard QR Stand (Center-Left Background) */}
+              <div className="absolute left-2 top-4 z-0 w-[180px] lg:w-[205px] rounded-2xl border border-ink/12 bg-paper p-4 text-center shadow-md dark:border-paper/12 dark:bg-white/[0.02]">
+                <div className="mx-auto mb-3 h-2 w-10 bg-ink/10 dark:bg-paper/10" />
+                <p className="font-display text-[11px] font-bold text-ink dark:text-paper leading-tight truncate">
+                  Mama Nkechi’s Kitchen
+                </p>
+                <div className="my-3 mx-auto grid h-[100px] w-[100px] place-items-center border border-ink/8 bg-white p-1 rounded-lg">
+                  <QRCodeCanvas value={customMenuUrl} size={90} level="H" />
+                </div>
+                <span className="inline-block rounded-md border border-ink/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-ink/60 dark:border-paper/15 dark:text-paper/55">
+                  Table 4
+                </span>
+                <p className="mt-3 font-mono text-[8px] uppercase tracking-widest text-ink/40 dark:text-paper/40 leading-none">
+                  📲 SCAN &amp; ORDER
+                </p>
               </div>
-              <div>
-                <dt className="font-display text-2xl font-bold text-ink dark:text-paper">0%</dt>
-                <dd className="mt-0.5 text-xs text-ink/45 dark:text-paper/45">Order commissions</dd>
-              </div>
-              <div>
-                <dt className="font-display text-2xl font-bold text-ink dark:text-paper">10 Min</dt>
-                <dd className="mt-0.5 text-xs text-ink/45 dark:text-paper/45">Simple setup</dd>
-              </div>
-            </div>
-          </div>
 
-          {/* Right Column: Diner Menu Simulator */}
-          <div className="relative mx-auto w-full max-w-[325px]">
-            {/* Phone Shadow Glow (Neutral Blur) */}
-            <div className="absolute inset-0 -z-10 rounded-[3rem] bg-slate-200/50 dark:bg-slate-900/40 blur-2xl" />
-            
-            {/* Phone Mockup Frame */}
-            <div className="relative border-8 border-slate-900 bg-slate-950 p-2 shadow-2xl rounded-[3rem]">
-              {/* Camera Notch */}
-              <div className="absolute left-1/2 top-4 h-4 w-28 -translate-x-1/2 rounded-full bg-slate-900 z-20" />
-
-              {/* Screen Content */}
-              <div className="bg-[#fffdfb] dark:bg-slate-900 h-[480px] flex flex-col rounded-[2.5rem] p-4 pt-8 text-left">
-                {/* Header */}
-                <div className="mb-2 border-b border-ink/12 pb-2 dark:border-paper/12">
-                  <div className="flex items-center gap-2">
-                    <span className="grid h-8 w-8 place-items-center bg-ink font-display text-sm font-semibold text-paper dark:bg-paper dark:text-ink">
-                      M
-                    </span>
-                    <div>
-                      <h4 className="font-display text-xs font-bold text-ink dark:text-paper leading-tight">Mama Nkechi’s Kitchen</h4>
-                      <p className="text-[10px] text-ink/45 dark:text-paper/45 mt-0.5">Table 4 · Scan to Order</p>
+              {/* Catfish Pepper Soup Card (Top Foreground) */}
+              {(() => {
+                const item = TEST_MENU[1]; // Catfish Pepper Soup
+                const qty = cart[item.id] || 0;
+                return (
+                  <div className="absolute right-4 top-2 z-10 w-[200px] lg:w-[225px] rotate-2 rounded-2xl border border-ink/12 bg-paper p-3 shadow-lg transition-all duration-300 hover:rotate-0 hover:scale-105 dark:border-paper/12 dark:bg-white/[0.02]">
+                    <div className="relative h-20 w-full overflow-hidden rounded-xl bg-ink/5 dark:bg-paper/5">
+                      <img src={item.img} alt={item.name} className="h-full w-full object-cover" />
+                      <span className="absolute left-2 top-2 z-10 bg-brand-600 text-white font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm">
+                        Hot &amp; Spicy
+                      </span>
+                    </div>
+                    <h5 className="mt-2 font-display text-xs font-bold text-ink dark:text-paper leading-snug truncate">{item.name}</h5>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-xs font-bold text-ink dark:text-paper">{formatNaira(item.price)}</span>
+                      <div className="flex items-center gap-1.5">
+                        {qty > 0 && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => updateCart(item.id, -1)}
+                              className="grid h-5 w-5 place-items-center border border-ink/15 bg-paper text-xs text-ink hover:bg-brand-100 dark:border-paper/15 dark:bg-ink dark:text-paper rounded"
+                            >
+                              -
+                            </button>
+                            <span className="text-xs font-bold text-ink dark:text-paper">{qty}</span>
+                          </>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => updateCart(item.id, 1)}
+                          className="grid h-5 w-5 place-items-center bg-ink text-xs text-paper hover:opacity-85 dark:bg-paper dark:text-ink rounded"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                );
+              })()}
 
-                {/* Diner Menu Feed */}
-                <div className="space-y-2 mt-2">
-                  {TEST_MENU.map(item => {
-                    const qty = cart[item.id] || 0
-                    return (
-                      <div key={item.id} className="flex gap-2.5 border-b border-ink/8 py-2.5 last:border-0 dark:border-paper/8">
-                        <span className="grid h-10 w-10 shrink-0 place-items-center bg-ink/5 text-xl dark:bg-paper/5">
-                          {item.img}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-display text-xs font-bold text-ink dark:text-paper truncate">{item.name}</h5>
-                          <p className="text-[10px] text-ink/50 dark:text-paper/45 mt-0.5 line-clamp-1 leading-relaxed">{item.desc}</p>
-                          <div className="mt-1.5 flex items-center justify-between">
-                            <span className="text-[11px] font-bold text-ink dark:text-paper">{formatNaira(item.price)}</span>
-                            
-                            {/* Qty selectors */}
-                            <div className="flex items-center gap-1.5">
-                              {qty > 0 ? (
-                                <>
-                                  <button
-                                    type="button"
-                                    onClick={() => updateCart(item.id, -1)}
-                                    className="grid h-5 w-5 place-items-center border border-ink/15 bg-paper text-xs text-ink hover:bg-brand-100 dark:border-paper/15 dark:bg-ink dark:text-paper"
-                                  >
-                                    -
-                                  </button>
-                                  <span className="text-xs font-bold text-ink dark:text-paper">{qty}</span>
-                                </>
-                              ) : null}
-                              <button
-                                type="button"
-                                onClick={() => updateCart(item.id, 1)}
-                                className="grid h-5 w-5 place-items-center bg-ink text-xs text-paper hover:opacity-85 dark:bg-paper dark:text-ink"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-                        </div>
+              {/* Smoky Party Jollof Card (Center Foreground) */}
+              {(() => {
+                const item = TEST_MENU[0]; // Jollof Rice
+                const qty = cart[item.id] || 0;
+                return (
+                  <div className="absolute right-0 top-32 lg:top-36 z-20 w-[220px] lg:w-[250px] -rotate-1 rounded-2xl border border-ink/15 bg-paper p-3 shadow-xl transition-all duration-300 hover:rotate-0 hover:scale-105 dark:border-paper/15 dark:bg-white/[0.02]">
+                    <div className="relative h-24 w-full overflow-hidden rounded-xl bg-ink/5 dark:bg-paper/5">
+                      <img src={item.img} alt={item.name} className="h-full w-full object-cover" />
+                      <span className="absolute left-2 top-2 z-10 bg-rose-600 text-white font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm">
+                        Best Seller 🔥
+                      </span>
+                    </div>
+                    <h5 className="mt-2 font-display text-xs font-bold text-ink dark:text-paper leading-snug truncate">{item.name}</h5>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-xs font-bold text-ink dark:text-paper">{formatNaira(item.price)}</span>
+                      <div className="flex items-center gap-1.5">
+                        {qty > 0 && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => updateCart(item.id, -1)}
+                              className="grid h-5 w-5 place-items-center border border-ink/15 bg-paper text-xs text-ink hover:bg-brand-100 dark:border-paper/15 dark:bg-ink dark:text-paper rounded"
+                            >
+                              -
+                            </button>
+                            <span className="text-xs font-bold text-ink dark:text-paper">{qty}</span>
+                          </>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => updateCart(item.id, 1)}
+                          className="grid h-5 w-5 place-items-center bg-ink text-xs text-paper hover:opacity-85 dark:bg-paper dark:text-ink rounded"
+                        >
+                          +
+                        </button>
                       </div>
-                    )
-                  })}
-                </div>
-
-                {/* Simulated Floating Cart Bar */}
-                {totalQty > 0 && (
-                  <div className="mt-auto border-t border-ink/10 pt-3 dark:border-paper/10">
-                    <button
-                      type="button"
-                      onClick={() => setShowOrderModal(true)}
-                      className="btn-whatsapp py-2 w-full text-xs font-semibold rounded flex items-center justify-center gap-1 shadow-glow-green"
-                    >
-                      <WhatsappIcon className="h-3 w-3" />
-                      Order {totalQty} Item{totalQty > 1 ? 's' : ''} ({formatNaira(totalPrice)})
-                    </button>
+                    </div>
                   </div>
-                )}
-              </div>
-            </div>
-            
-            {/* Interactive hint overlay */}
-            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-              <span className="pointer-events-auto flex items-center gap-1.5 whitespace-nowrap border border-brand-200 bg-brand-100/50 px-3.5 py-1 font-mono text-[10px] uppercase tracking-wider text-brand-700 dark:border-brand-500/20 dark:bg-brand-500/5 dark:text-brand-450 animate-bounce">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse" />
-                💡 Tap buttons to test diner app
-              </span>
+                );
+              })()}
+
+              {/* Chilled Zobo Drink Card (Bottom Foreground) */}
+              {(() => {
+                const item = TEST_MENU[2]; // Zobo
+                const qty = cart[item.id] || 0;
+                return (
+                  <div className="absolute left-4 bottom-8 lg:bottom-10 z-30 w-[190px] lg:w-[215px] -rotate-3 rounded-2xl border border-ink/12 bg-paper p-3 shadow-lg transition-all duration-300 hover:rotate-0 hover:scale-105 dark:border-paper/12 dark:bg-white/[0.02]">
+                    <div className="relative h-20 w-full overflow-hidden rounded-xl bg-ink/5 dark:bg-paper/5">
+                      <img src={item.img} alt={item.name} className="h-full w-full object-cover" />
+                      <span className="absolute left-2 top-2 z-10 bg-whatsapp-600 text-white font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm">
+                        Freshly Brewed
+                      </span>
+                    </div>
+                    <h5 className="mt-2 font-display text-xs font-bold text-ink dark:text-paper leading-snug truncate">{item.name}</h5>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-xs font-bold text-ink dark:text-paper">{formatNaira(item.price)}</span>
+                      <div className="flex items-center gap-1.5">
+                        {qty > 0 && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => updateCart(item.id, -1)}
+                              className="grid h-5 w-5 place-items-center border border-ink/15 bg-paper text-xs text-ink hover:bg-brand-100 dark:border-paper/15 dark:bg-ink dark:text-paper rounded"
+                            >
+                              -
+                            </button>
+                            <span className="text-xs font-bold text-ink dark:text-paper">{qty}</span>
+                          </>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => updateCart(item.id, 1)}
+                          className="grid h-5 w-5 place-items-center bg-ink text-xs text-paper hover:opacity-85 dark:bg-paper dark:text-ink rounded"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Simulated Floating Cart Bar / WhatsApp Alert bubble */}
+              {totalQty > 0 && (
+                <div className="absolute -bottom-6 left-1/2 z-40 w-[290px] lg:w-[320px] -translate-x-1/2 animate-slide-up">
+                  <button
+                    type="button"
+                    onClick={() => setShowOrderModal(true)}
+                    className="btn-whatsapp w-full py-2.5 px-4 text-xs font-semibold rounded-2xl flex items-center justify-center gap-1.5 shadow-md hover:-translate-y-0.5 transition-all duration-300"
+                  >
+                    <WhatsappIcon className="h-4 w-4" />
+                    Order Table 4 ({totalQty} items · {formatNaira(totalPrice)})
+                  </button>
+                </div>
+              )}
+
+              {totalQty === 0 && (
+                <div className="absolute -bottom-6 left-1/2 z-40 -translate-x-1/2 pointer-events-none">
+                  <span className="pointer-events-auto flex items-center gap-1.5 whitespace-nowrap border border-ink/15 bg-paper px-3.5 py-1 font-mono text-[9px] uppercase tracking-wider text-ink/65 dark:border-paper/15 dark:bg-ink dark:text-paper/60 animate-bounce rounded-full shadow-sm">
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse" />
+                    💡 Tap buttons to test diner ordering
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
+
+      {/* Centered Main Page Contents Wrap */}
+      <div className="mx-auto w-full max-w-5xl lg:max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 space-y-28">
 
       {/* Simulated Order Preview Modal */}
       {showOrderModal && (
@@ -406,6 +507,7 @@ export default function Landing() {
           </div>
         </div>
       </section>
+      </div>
     </div>
   )
 }

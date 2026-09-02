@@ -2,6 +2,8 @@ import { useMemo, useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import useMenu, { groupItemsByCategory } from '../hooks/useMenu.js'
 import useToast from '../hooks/useToast.js'
+import useSEO from '../hooks/useSEO.js'
+
 import Toast from '../components/Toast.jsx'
 import ImageUpload from '../components/ImageUpload.jsx'
 import CategoryManager from '../components/CategoryManager.jsx'
@@ -14,6 +16,8 @@ import SectionNav from '../components/SectionNav.jsx'
 import Icon from '../components/Icon.jsx'
 import SetupWizard from '../components/SetupWizard.jsx'
 import AccountPanel from '../components/AccountPanel.jsx'
+import DemoBanner from '../components/DemoBanner.jsx'
+
 
 // Sections the floating "jump to" menu links to (id must match the markup below).
 const NAV_SECTIONS = [
@@ -37,6 +41,10 @@ function downloadQrPng(filename) {
 }
 
 export default function Dashboard() {
+  useSEO({
+    title: 'Restaurant Dashboard | MenuLink',
+  })
+
   const {
     restaurant,
     updateRestaurant,
@@ -46,6 +54,7 @@ export default function Dashboard() {
     updateItem,
     removeItem,
   } = useMenu()
+
   const { toast, showToast } = useToast()
   const [editing, setEditing] = useState(null)
 
@@ -126,9 +135,11 @@ export default function Dashboard() {
   if (activeTab === 'setup') {
     return (
       <div className="space-y-8 animate-fade-in">
+        <DemoBanner />
         <header className="border-b border-slate-200 pb-8 dark:border-slate-800">
           <span className="eyebrow">Your dashboard</span>
           <h1 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+
             My <span className="text-gradient">Menu</span>
           </h1>
           <p className="mt-2 text-slate-600 dark:text-slate-400">
@@ -142,6 +153,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
+      <DemoBanner />
       <header>
         <span className="eyebrow">Dashboard</span>
         <h1 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">

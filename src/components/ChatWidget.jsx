@@ -102,9 +102,9 @@ export default function ChatWidget() {
             togglePanel('chat')
             setShowPromo(false)
           }}
-          className="fixed bottom-[1.35rem] right-20 z-50 flex cursor-pointer items-center gap-2 border border-brand-500 bg-paper px-3.5 py-2 font-mono text-[10px] uppercase tracking-wider text-brand-700 hover:bg-brand-100/50 dark:border-brand-500/30 dark:bg-slate-900 dark:text-brand-450 animate-fade-in"
+          className="fixed bottom-[1.35rem] right-20 z-50 flex cursor-pointer items-center gap-2 border border-ink/12 bg-paper px-3.5 py-2 font-mono text-[10px] uppercase tracking-wider text-ink/75 hover:bg-ink/[0.03] dark:border-paper/12 dark:bg-ink dark:text-paper/75 dark:hover:bg-paper/[0.03] animate-fade-in"
         >
-          <span className="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse" />
+          <span className="h-1.5 w-1.5 rounded-full bg-ink animate-pulse dark:bg-paper" />
           <span>👋 Need help? Ask assistant!</span>
           <button 
             type="button" 

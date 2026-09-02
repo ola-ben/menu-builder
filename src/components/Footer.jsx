@@ -17,10 +17,17 @@ const iconCls =
 export default function Footer() {
   return (
     <footer className="border-t border-white/40 bg-white/40 backdrop-blur dark:border-white/5 dark:bg-slate-950/40">
-      <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-4 py-6 text-sm text-slate-500 dark:text-slate-400 sm:flex-row sm:justify-between sm:px-6">
-        <p>
-          © {new Date().getFullYear()} <span className="font-display font-bold text-gradient">MenuLink</span>. Your menu, one scan away.
-        </p>
+      <div className="mx-auto flex max-w-5xl lg:max-w-7xl flex-col items-center gap-4 px-4 py-6 text-sm text-slate-500 dark:text-slate-400 sm:flex-row sm:justify-between sm:px-6 lg:px-8">
+        <div className="text-center sm:text-left space-y-1">
+          <p>
+            © {new Date().getFullYear()} <span className="font-display font-bold text-gradient">MenuLink</span>. Your menu, one scan away.
+          </p>
+          <div className="flex justify-center gap-4 text-xs text-slate-400 dark:text-slate-500 sm:justify-start">
+            <Link to="/terms" className="hover:text-brand-600 transition-colors dark:hover:text-brand-400">Terms of Service</Link>
+            <span className="text-slate-200 dark:text-slate-800">•</span>
+            <Link to="/privacy" className="hover:text-brand-600 transition-colors dark:hover:text-brand-400">Privacy Policy</Link>
+          </div>
+        </div>
 
         <div className="flex items-center gap-2">
           <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"

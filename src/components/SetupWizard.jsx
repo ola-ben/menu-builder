@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useMenu from '../hooks/useMenu.js'
 import ImageUpload from './ImageUpload.jsx'
@@ -26,16 +26,38 @@ export default function SetupWizard() {
   const [isAnon, setIsAnon] = useState(true)
   const { toast, showToast } = useToast()
 
-  // Step 1 OTP state
-  const [email, setEmail] = useState('')
-  const [token, setToken] = useState('')
-  const [otpSent, setOtpSent] = useState(false)
+  const isSimulated = localStorage.getItem('qr-menu:simulated_login') === 'true'
+
+  // If simulated, override isAnon to false and skip Step 1 if step is currently 1
+  useEffect(() => {
+    if (isSimulated) {
+      setIsAnon(false)
+      let saved = null
+      try {
+        saved = localStorage.getItem('qr-menu:setup_wizard_step')
+      } catch {
+        // Ignore
+      }
+      if (!saved || saved === '1') {
+        setStep(2)
+      }
+    }
+  }, [isSimulated])
+
+  // Step 1 Google Sign-in state
   const [authError, setAuthError] = useState(null)
   const [authLoading, setAuthLoading] = useState(false)
+  const googleBtnRef = useRef(null)
+
+  const isAccountStep = isSupabaseEnabled && step === 1
+  const isProfileStep = step === (isSupabaseEnabled ? 2 : 1)
+  const isProductStep = step === (isSupabaseEnabled ? 3 : 2)
+  const isShareStep = step === (isSupabaseEnabled ? 4 : 3)
 
   // Fetch session on mount and listen to auth changes
   useEffect(() => {
     let cancelled = false
+    if (isSimulated) return // Bypass session fetch if simulating
     if (isSupabaseEnabled) {
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (!cancelled && session) {
@@ -153,85 +175,59 @@ export default function SetupWizard() {
     showToast('QR code saved 📥', 'success')
   }
 
-  const handleGoogleLogin = async () => {
-    setAuthError(null)
-    setAuthLoading(true)
+  // Initialize Google Sign-In client library
+  useEffect(() => {
+    if (!isAccountStep || !isSupabaseEnabled) return
 
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/dashboard/setup`,
+    const initGoogleGsi = () => {
+      /* global google */
+      if (typeof google !== 'undefined' && googleBtnRef.current) {
+        try {
+          google.accounts.id.initialize({
+            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+            callback: async (response) => {
+              setAuthError(null)
+              setAuthLoading(true)
+              try {
+                // Send the ID token received from Google to Supabase
+                const { error: err } = await supabase.auth.signInWithIdToken({
+                  provider: 'google',
+                  token: response.credential,
+                })
+                if (err) throw err
+                
+                showToast('Signed in with Google! 🎉', 'success')
+              } catch (err) {
+                setAuthError(err.message || 'Google sign in failed.')
+              } finally {
+                setAuthLoading(false)
+              }
+            },
+          })
+          
+          google.accounts.id.renderButton(googleBtnRef.current, {
+            theme: 'outline',
+            size: 'large',
+            shape: 'rectangular',
+            width: googleBtnRef.current.parentElement?.clientWidth || 320,
+          })
+        } catch (e) {
+          console.error('Failed to initialize Google Sign-In:', e)
         }
-      })
-      if (error) throw error
-    } catch (err) {
-      setAuthError(err.message || 'Failed to initialize Google login.')
-      setAuthLoading(false)
-    }
-  }
-
-  const handleSendOtp = async (e) => {
-    e.preventDefault()
-    if (!email.trim()) return
-
-    setAuthError(null)
-    setAuthLoading(true)
-
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim(),
-        options: {
-          shouldCreateUser: true, // Auto-registers new accounts
-          emailRedirectTo: `${window.location.origin}/dashboard/setup`,
-        }
-      })
-      if (error) throw error
-
-      setOtpSent(true)
-    } catch (err) {
-      setAuthError(err.message || 'Failed to send verification code. Please check your email.')
-    } finally {
-      setAuthLoading(false)
-    }
-  }
-
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault()
-    if (!token.trim()) return
-
-    setAuthError(null)
-    setAuthLoading(true)
-
-    try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: email.trim(),
-        token: token.trim(),
-        type: 'email', // Generic verification type
-      })
-      if (error) throw error
-
-      const ownerId = data.user.id
-      const { data: existingMenu } = await supabase
-        .from('menus')
-        .select('*')
-        .eq('owner_id', ownerId)
-        .maybeSingle()
-
-      if (existingMenu && existingMenu.name?.trim() && existingMenu.whatsapp_number?.trim()) {
-        // Menu already exists and is configured: reload window to mount dashboard with full menu details and orders
-        window.location.reload()
-      } else {
-        // Authenticated but no menu setup yet (or empty menu profile row exists)
-        setIsAnon(false)
-        setStep(2)
       }
-    } catch (err) {
-      setAuthError(err.message || 'Verification failed. Please check the code and try again.')
-    } finally {
-      setAuthLoading(false)
     }
-  }
+
+    initGoogleGsi()
+    // Retry initialization in case script loads slowly
+    const interval = setInterval(() => {
+      if (typeof google !== 'undefined') {
+        initGoogleGsi()
+        clearInterval(interval)
+      }
+    }, 500)
+
+    return () => clearInterval(interval)
+  }, [isAccountStep])
 
   const handleSaveDetails = (e) => {
     e.preventDefault()
@@ -290,10 +286,6 @@ export default function SetupWizard() {
     ]
   }, [])
 
-  const isAccountStep = isSupabaseEnabled && step === 1
-  const isProfileStep = step === (isSupabaseEnabled ? 2 : 1)
-  const isProductStep = step === (isSupabaseEnabled ? 3 : 2)
-  const isShareStep = step === (isSupabaseEnabled ? 4 : 3)
 
   return (
     <div className="mx-auto w-full max-w-xl animate-fade-in">
@@ -348,142 +340,37 @@ export default function SetupWizard() {
 
       {/* Step Contents */}
       <div className="card p-6 sm:p-8">
-        {/* Step 1: Create Account / Sign In with OTP */}
+        {/* Step 1: Create Account / Sign In with Google */}
         {isAccountStep && (
           <div>
-            {!otpSent ? (
-              // Screen 1a: Email Input
-              <div>
-                <div className="mb-6 border-b border-slate-200 pb-4 dark:border-slate-800">
-                  <h2 className="font-display text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
-                    Enter Your Email
-                  </h2>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    We will send a 6-digit verification code to your inbox to secure your menu.
-                  </p>
-                </div>
+            <div className="mb-6 border-b border-slate-200 pb-4 dark:border-slate-800">
+              <h2 className="font-display text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
+                Create Your Account
+              </h2>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                Sign in with Google to secure your menu, categories, and customer orders.
+              </p>
+            </div>
 
-                {authError && (
-                  <div className="mb-4 border border-rose-500/20 bg-rose-500/[0.06] p-3 text-xs text-rose-600 dark:text-rose-400 rounded-xl">
-                    {authError}
-                  </div>
-                )}
+            {authError && (
+              <div className="mb-4 border border-rose-500/20 bg-rose-500/[0.06] p-3 text-xs text-rose-600 dark:text-rose-400 rounded-xl">
+                {authError}
+              </div>
+            )}
 
-                <form onSubmit={handleSendOtp} className="space-y-4">
-                  <div>
-                    <label htmlFor="auth-email" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                      Email Address
-                    </label>
-                    <input
-                      id="auth-email"
-                      type="email"
-                      required
-                      disabled={authLoading}
-                      className="input-base"
-                      placeholder="e.g. you@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-                    <button
-                      type="submit"
-                      disabled={authLoading || !email.trim()}
-                      className="btn-primary w-full py-2.5 font-semibold text-sm"
-                    >
-                      {authLoading ? 'Sending code…' : 'Send Verification Code'}
-                    </button>
-                  </div>
-
-                  <div className="relative my-4 flex items-center justify-center">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
-                    </div>
-                    <span className="relative bg-white px-3 font-mono text-[9px] uppercase tracking-wider text-slate-400 dark:bg-slate-900 dark:text-slate-500">
-                      or
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    disabled={authLoading}
-                    onClick={handleGoogleLogin}
-                    className="flex w-full items-center justify-center rounded-xl border border-slate-200 bg-transparent py-2.5 font-mono text-xs uppercase tracking-wider text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900"
-                  >
-                    <svg className="mr-2 h-4 w-4 shrink-0" viewBox="0 0 24 24">
-                      <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.47 14.98 1 12 1 7.35 1 3.39 3.65 1.5 7.56l3.87 3a7.02 7.02 0 016.63-5.52z"/>
-                      <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.34H12v4.44h6.46a5.53 5.53 0 01-2.4 3.63v3.01h3.87c2.26-2.08 3.56-5.14 3.56-8.74z"/>
-                      <path fill="#FBBC05" d="M5.37 14.56a7.02 7.02 0 010-5.12l-3.87-3A11.96 11.96 0 001 12c0 2.2.6 4.27 1.5 6.06l3.87-3.5z"/>
-                      <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.87-3.01c-1.07.72-2.45 1.15-4.09 1.15-3.14 0-5.81-2.11-6.75-4.96l-3.87 3A11.96 11.96 0 0012 23z"/>
-                    </svg>
-                    Continue with Google
-                  </button>
-                </form>
+            {!import.meta.env.VITE_GOOGLE_CLIENT_ID ? (
+              <div className="border border-amber-500/20 bg-amber-500/[0.06] p-4 text-sm text-amber-650 dark:text-amber-400 rounded-2xl">
+                ⚠️ Google Client ID is not configured. Please define <code>VITE_GOOGLE_CLIENT_ID</code> in your <code>.env</code> file.
               </div>
             ) : (
-              // Screen 1b: Code Verification / Confirm Email
-              <div>
-                <div className="mb-6 border-b border-slate-200 pb-4 dark:border-slate-800">
-                  <h2 className="font-display text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
-                    Check your email
-                  </h2>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    We sent a sign-in link and verification code to <b className="text-slate-850 dark:text-white">{email}</b>.
-                  </p>
-                  <div className="mt-3 p-3 bg-brand-500/[0.08] border border-brand-500/20 text-xs text-slate-700 dark:text-slate-300 rounded-xl animate-pulse">
-                    <span className="font-semibold text-brand-650 dark:text-brand-400 block mb-1">How to sign in:</span>
-                    Click the link in the email to sign in automatically, or enter the 6-digit code below.
-                  </div>
+              <div className="space-y-4">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Connect with your Google account to get started:
+                </p>
+                <div className="flex w-full min-h-[44px]">
+                  <div ref={googleBtnRef} className="w-full flex justify-center"></div>
                 </div>
-
-                {authError && (
-                  <div className="mb-4 border border-rose-500/20 bg-rose-500/[0.06] p-3 text-xs text-rose-600 dark:text-rose-400 rounded-xl">
-                    {authError}
-                  </div>
-                )}
-
-                <form onSubmit={handleVerifyOtp} className="space-y-4">
-                  <div>
-                    <label htmlFor="auth-token" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                      Verification Code
-                    </label>
-                    <input
-                      id="auth-token"
-                      type="text"
-                      maxLength={6}
-                      required
-                      disabled={authLoading}
-                      className="input-base font-mono text-center text-lg tracking-[0.25em] pl-[0.25em]"
-                      placeholder="000000"
-                      value={token}
-                      onChange={(e) => setToken(e.target.value.replace(/\D/g, ''))}
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-                    <button
-                      type="submit"
-                      disabled={authLoading || token.trim().length < 6}
-                      className="btn-primary w-full py-2.5 font-semibold text-sm"
-                    >
-                      {authLoading ? 'Verifying…' : 'Verify & Continue'}
-                    </button>
-
-                    <button
-                      type="button"
-                      disabled={authLoading}
-                      onClick={() => {
-                        setAuthError(null)
-                        setOtpSent(false)
-                        setToken('')
-                      }}
-                      className="text-center font-mono text-xs uppercase tracking-wider text-brand-600 hover:text-brand-700 transition-colors py-1 dark:text-brand-400"
-                    >
-                      Change Email Address
-                    </button>
-                  </div>
-                </form>
+                {authLoading && <p className="text-center text-xs text-slate-400">Creating your permanent account...</p>}
               </div>
             )}
           </div>

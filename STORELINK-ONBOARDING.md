@@ -107,7 +107,7 @@ Both projects share the same Supabase project but use namespaced tables:
 | :--- | :--- | :--- |
 | `stores` | `menus` | Store/Menu profile (slug, name, theme, WhatsApp number, JSON array of products/dishes) |
 | `orders` | `menu_orders` | Tracks customer orders placed through the app |
-| `store_billing` | `menu_billing` | Tracks the 14-day free trial and active subscription states |
+| `store_billing` | `menu_billing` | Tracks the 30-day free trial and active subscription states |
 
 ### Row Level Security (RLS) Rules:
 1. **Insert/Select/Update/Delete (Owner)**: Users can only write/modify rows where `owner_id = auth.uid()`.

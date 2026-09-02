@@ -10,6 +10,7 @@ import { formatNaira } from '../utils/format.js'
 import { buildWhatsappLink, buildMenuOrderMessage } from '../utils/whatsapp.js'
 import { createOrder } from '../utils/orders.js'
 import { fetchBilling, computeBilling } from '../utils/billing.js'
+import useSEO from '../hooks/useSEO.js'
 
 export default function Menu() {
   const { menuId } = useParams()
@@ -43,6 +44,30 @@ export default function Menu() {
   const loading = restaurant === undefined || (restaurant && billing === undefined)
   const notFound = !loading && !restaurant
   const paused = !loading && restaurant && billing && !billing.live
+
+  let seoTitle = 'Loading Menu… | MenuLink'
+  let seoDesc = 'Build a digital menu and take orders on WhatsApp.'
+  let seoOgImage = undefined
+  let seoOgUrl = undefined
+
+  if (notFound) {
+    seoTitle = 'Menu Not Found | MenuLink'
+  } else if (paused) {
+    seoTitle = `${restaurant?.name || 'Menu'} is Paused | MenuLink`
+  } else if (restaurant) {
+    seoTitle = `${restaurant.name} | MenuLink`
+    seoDesc = restaurant.tagline || `Scan, browse our menu, and order straight from WhatsApp.`
+    seoOgImage = restaurant.logoUrl || 'https://menulink.vercel.app/og-cover.png'
+    seoOgUrl = `https://menulink.vercel.app/menu/${menuId}`
+  }
+
+  useSEO({
+    title: seoTitle,
+    description: seoDesc,
+    ogImage: seoOgImage,
+    ogUrl: seoOgUrl,
+  })
+
 
   const groups = useMemo(() => groupItemsByCategory(restaurant), [restaurant])
 

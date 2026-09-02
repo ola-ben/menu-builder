@@ -1,4 +1,5 @@
 import Icon, { WhatsappIcon, TikTokIcon } from '../components/Icon.jsx'
+import useSEO from '../hooks/useSEO.js'
 
 const CONTACTS = [
   {
@@ -30,7 +31,13 @@ const CONTACTS = [
 ]
 
 export default function Contact() {
+  useSEO({
+    title: 'Contact Us | MenuLink',
+    description: 'Get in touch with MenuLink support team for help, onboarding, and feedback.',
+  })
+
   return (
+
     <div className="mx-auto max-w-2xl animate-fade-in">
       <header>
         <span className="eyebrow">Get in touch</span>

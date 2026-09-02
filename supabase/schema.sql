@@ -20,8 +20,8 @@ create table if not exists public.menus (
   updated_at      timestamptz not null default now()
 );
 
--- One menu per owner for now (drop this if you later support multiple branches).
-create unique index if not exists menus_owner_id_key on public.menus (owner_id);
+-- One menu per owner is disabled to support multiple client digital menus.
+-- create unique index if not exists menus_owner_id_key on public.menus (owner_id);
 
 -- ── Row-Level Security ──────────────────────────────────────────────────────
 alter table public.menus enable row level security;
@@ -96,14 +96,14 @@ create policy "Owner deletes menu orders" on public.menu_orders
   for delete using (exists (select 1 from public.menus m where m.id = menu_orders.menu_id and m.owner_id = auth.uid()));
 
 -- ───────────────────────────────────────────────────────────────────────────
--- Billing — free 14-day trial, then "pay to stay live". Publicly READABLE but
+-- Billing — free 30 days trial, then "pay to stay live". Publicly READABLE but
 -- writable only by the server (no write policies) — diners/owners can't edit it.
 -- ───────────────────────────────────────────────────────────────────────────
 
 create table if not exists public.menu_billing (
   menu_id       text primary key references public.menus (id) on delete cascade,
   active        boolean     not null default false,
-  trial_ends_at timestamptz not null default (now() + interval '14 days'),
+  trial_ends_at timestamptz not null default (now() + interval '30 days'),
   expires_at    timestamptz,
   created_at    timestamptz not null default now()
 );
