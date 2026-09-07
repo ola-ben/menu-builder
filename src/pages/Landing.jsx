@@ -60,7 +60,7 @@ export default function Landing() {
     <div className="space-y-28">
       {/* Hero Section - Full Bleed Background */}
       <section 
-        className="relative w-full bg-cover bg-center overflow-hidden border-b border-ink/12 dark:border-paper/12"
+        className="relative w-full min-h-[105vh] bg-cover bg-center overflow-hidden border-b border-ink/12 dark:border-paper/12 flex flex-col justify-center pb-12 lg:pb-16"
         style={{
           backgroundImage: "linear-gradient(to bottom, rgba(11, 11, 11, 0.45), rgba(11, 11, 11, 0.65)), url('/hero_food_bg.jpg')"
         }}
@@ -85,21 +85,21 @@ export default function Landing() {
         </div>
 
         {/* Centered Hero Content Column */}
-        <div className="mx-auto w-full max-w-5xl lg:max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:py-36 md:px-8 lg:px-10 relative z-20">
-          <div className="grid items-center gap-12 lg:gap-16 xl:gap-20 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="mx-auto w-full max-w-5xl lg:max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:pt-24 lg:pb-16 md:px-8 lg:px-10 relative z-20">
+          <div className="grid items-center gap-8 lg:gap-14 xl:gap-16 lg:grid-cols-[1.18fr_0.82fr]">
             {/* Left Column: Hero Text */}
             <div className="text-center lg:text-left">
               <p className="font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-white/50 flex items-center gap-2 justify-center lg:justify-start">
                 <span className="h-1.5 w-1.5 bg-brand-500 animate-pulse" />
                 For Bukas, Restaurants &amp; Food Vendors
               </p>
-              <h1 className="mt-6 font-display text-5xl font-semibold leading-[0.98] tracking-display text-glass sm:text-6xl lg:text-7xl xl:text-[5rem]">
+              <h1 className="mt-4 lg:mt-5 font-display text-4xl font-semibold leading-[1.02] tracking-display text-glass sm:text-5xl lg:text-[3.5rem] xl:text-[4.15rem]">
                 From Smoky Jollof to Pepper Soup, serve guests in <span className="text-glass-amber">seconds</span>.
               </h1>
-              <p className="mx-auto mt-6 max-w-xl lg:max-w-2xl text-base lg:text-lg leading-relaxed text-white/70 lg:mx-0">
+              <p className="mx-auto mt-4 lg:mt-5 max-w-xl lg:max-w-2xl text-sm sm:text-base lg:text-base leading-relaxed text-white/70 lg:mx-0">
                 Diners scan the table QR code to browse your menu, choose portions, and send their order straight to your WhatsApp. Zero commissions, zero printing costs.
               </p>
-              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+              <div className="mt-6 lg:mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
                 <Link to="/dashboard" className="btn-primary">
                   Build your menu — free
                 </Link>
@@ -109,7 +109,7 @@ export default function Landing() {
               </div>
 
               {/* Quick trust metrics */}
-              <div className="mt-12 grid max-w-md lg:max-w-lg grid-cols-3 gap-6 lg:gap-8 border-t border-white/10 pt-8 lg:mx-0">
+              <div className="mt-7 lg:mt-8 grid max-w-md lg:max-w-lg grid-cols-3 gap-6 lg:gap-8 border-t border-white/10 pt-5 lg:mx-0">
                 <div>
                   <dt className="font-display text-2xl font-bold text-white">Free</dt>
                   <dd className="mt-0.5 text-xs text-white/50">30 days trial</dd>
@@ -119,27 +119,27 @@ export default function Landing() {
                   <dd className="mt-0.5 text-xs text-white/50">Order commissions</dd>
                 </div>
                 <div>
-                  <dt className="font-display text-2xl font-bold text-white">10 Min</dt>
+                  <dt className="font-display text-2xl font-bold text-white">1 Min</dt>
                   <dd className="mt-0.5 text-xs text-white/50">Simple setup</dd>
                 </div>
               </div>
             </div>
 
             {/* Right Column: Visual Overlap Composition */}
-            <div className="relative mx-auto w-full max-w-[380px] h-[500px] lg:max-w-[450px] lg:h-[540px]">
+            <div className="relative mx-auto w-full max-w-[360px] h-[460px] lg:max-w-[430px] lg:h-[480px]">
               {/* Table Placard QR Stand (Center-Left Background) */}
-              <div className="absolute left-2 top-4 z-0 w-[180px] lg:w-[205px] rounded-2xl border border-ink/12 bg-paper p-4 text-center shadow-md dark:border-paper/12 dark:bg-white/[0.02]">
-                <div className="mx-auto mb-3 h-2 w-10 bg-ink/10 dark:bg-paper/10" />
+              <div className="absolute left-2 top-2 z-0 w-[175px] lg:w-[195px] rounded-2xl border border-ink/12 bg-paper p-3.5 text-center shadow-md dark:border-paper/12 dark:bg-white/[0.02]">
+                <div className="mx-auto mb-2.5 h-1.5 w-8 bg-ink/10 dark:bg-paper/10" />
                 <p className="font-display text-[11px] font-bold text-ink dark:text-paper leading-tight truncate">
                   Mama Nkechi’s Kitchen
                 </p>
-                <div className="my-3 mx-auto grid h-[100px] w-[100px] place-items-center border border-ink/8 bg-white p-1 rounded-lg">
-                  <QRCodeCanvas value={customMenuUrl} size={90} level="H" />
+                <div className="my-2.5 mx-auto grid h-[95px] w-[95px] place-items-center border border-ink/8 bg-white p-1 rounded-lg">
+                  <QRCodeCanvas value={customMenuUrl} size={85} level="H" />
                 </div>
                 <span className="inline-block rounded-md border border-ink/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-ink/60 dark:border-paper/15 dark:text-paper/55">
                   Table 4
                 </span>
-                <p className="mt-3 font-mono text-[8px] uppercase tracking-widest text-ink/40 dark:text-paper/40 leading-none">
+                <p className="mt-2.5 font-mono text-[8px] uppercase tracking-widest text-ink/40 dark:text-paper/40 leading-none">
                   📲 SCAN &amp; ORDER
                 </p>
               </div>
@@ -149,8 +149,8 @@ export default function Landing() {
                 const item = TEST_MENU[1]; // Catfish Pepper Soup
                 const qty = cart[item.id] || 0;
                 return (
-                  <div className="absolute right-4 top-2 z-10 w-[200px] lg:w-[225px] rotate-2 rounded-2xl border border-ink/12 bg-paper p-3 shadow-lg transition-all duration-300 hover:rotate-0 hover:scale-105 dark:border-paper/12 dark:bg-white/[0.02]">
-                    <div className="relative h-20 w-full overflow-hidden rounded-xl bg-ink/5 dark:bg-paper/5">
+                  <div className="absolute right-2 top-0 z-10 w-[190px] lg:w-[215px] rotate-2 rounded-2xl border border-ink/12 bg-paper p-3 shadow-lg transition-all duration-300 hover:rotate-0 hover:scale-105 dark:border-paper/12 dark:bg-white/[0.02]">
+                    <div className="relative h-18 lg:h-20 w-full overflow-hidden rounded-xl bg-ink/5 dark:bg-paper/5">
                       <img src={item.img} alt={item.name} className="h-full w-full object-cover" />
                       <span className="absolute left-2 top-2 z-10 bg-brand-600 text-white font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm">
                         Hot &amp; Spicy
@@ -190,8 +190,8 @@ export default function Landing() {
                 const item = TEST_MENU[0]; // Jollof Rice
                 const qty = cart[item.id] || 0;
                 return (
-                  <div className="absolute right-0 top-32 lg:top-36 z-20 w-[220px] lg:w-[250px] -rotate-1 rounded-2xl border border-ink/15 bg-paper p-3 shadow-xl transition-all duration-300 hover:rotate-0 hover:scale-105 dark:border-paper/15 dark:bg-white/[0.02]">
-                    <div className="relative h-24 w-full overflow-hidden rounded-xl bg-ink/5 dark:bg-paper/5">
+                  <div className="absolute right-0 top-28 lg:top-32 z-20 w-[210px] lg:w-[240px] -rotate-1 rounded-2xl border border-ink/15 bg-paper p-3 shadow-xl transition-all duration-300 hover:rotate-0 hover:scale-105 dark:border-paper/15 dark:bg-white/[0.02]">
+                    <div className="relative h-22 lg:h-24 w-full overflow-hidden rounded-xl bg-ink/5 dark:bg-paper/5">
                       <img src={item.img} alt={item.name} className="h-full w-full object-cover" />
                       <span className="absolute left-2 top-2 z-10 bg-rose-600 text-white font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm">
                         Best Seller 🔥
@@ -231,8 +231,8 @@ export default function Landing() {
                 const item = TEST_MENU[2]; // Zobo
                 const qty = cart[item.id] || 0;
                 return (
-                  <div className="absolute left-4 bottom-8 lg:bottom-10 z-30 w-[190px] lg:w-[215px] -rotate-3 rounded-2xl border border-ink/12 bg-paper p-3 shadow-lg transition-all duration-300 hover:rotate-0 hover:scale-105 dark:border-paper/12 dark:bg-white/[0.02]">
-                    <div className="relative h-20 w-full overflow-hidden rounded-xl bg-ink/5 dark:bg-paper/5">
+                  <div className="absolute left-2 bottom-6 lg:bottom-8 z-30 w-[180px] lg:w-[205px] -rotate-3 rounded-2xl border border-ink/12 bg-paper p-3 shadow-lg transition-all duration-300 hover:rotate-0 hover:scale-105 dark:border-paper/12 dark:bg-white/[0.02]">
+                    <div className="relative h-18 lg:h-20 w-full overflow-hidden rounded-xl bg-ink/5 dark:bg-paper/5">
                       <img src={item.img} alt={item.name} className="h-full w-full object-cover" />
                       <span className="absolute left-2 top-2 z-10 bg-whatsapp-600 text-white font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm">
                         Freshly Brewed
@@ -269,7 +269,7 @@ export default function Landing() {
 
               {/* Simulated Floating Cart Bar / WhatsApp Alert bubble */}
               {totalQty > 0 && (
-                <div className="absolute -bottom-6 left-1/2 z-40 w-[290px] lg:w-[320px] -translate-x-1/2 animate-slide-up">
+                <div className="absolute -bottom-4 left-1/2 z-40 w-[280px] lg:w-[310px] -translate-x-1/2 animate-slide-up">
                   <button
                     type="button"
                     onClick={() => setShowOrderModal(true)}
@@ -282,7 +282,7 @@ export default function Landing() {
               )}
 
               {totalQty === 0 && (
-                <div className="absolute -bottom-6 left-1/2 z-40 -translate-x-1/2 pointer-events-none">
+                <div className="absolute -bottom-4 left-1/2 z-40 -translate-x-1/2 pointer-events-none">
                   <span className="pointer-events-auto flex items-center gap-1.5 whitespace-nowrap border border-ink/15 bg-paper px-3.5 py-1 font-mono text-[9px] uppercase tracking-wider text-ink/65 dark:border-paper/15 dark:bg-ink dark:text-paper/60 animate-bounce rounded-full shadow-sm">
                     <span className="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse" />
                     💡 Tap buttons to test diner ordering
