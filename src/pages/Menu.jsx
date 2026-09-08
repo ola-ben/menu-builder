@@ -96,7 +96,10 @@ export default function Menu() {
 
   const sendOrder = () => {
     if (!count) return
-    const link = buildWhatsappLink(restaurant.whatsappNumber, buildMenuOrderMessage(restaurant.name, lines))
+    const searchParams = new URLSearchParams(window.location.search)
+    const tableParam = searchParams.get('table')
+    const tableLabel = tableParam ? `Table ${tableParam}` : ''
+    const link = buildWhatsappLink(restaurant.whatsappNumber, buildMenuOrderMessage(restaurant.name, lines, tableLabel))
     if (!link) {
       showToast('This menu has no WhatsApp number set.', 'error')
       return

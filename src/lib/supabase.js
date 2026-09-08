@@ -1,9 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
-// From your Supabase project (Settings → API). Put them in a `.env` file as
-// VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY. See SUPABASE.md.
-const url = import.meta.env.VITE_SUPABASE_URL
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const url = import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
 
 /** True when both env vars are present, so the app can use the cloud backend. */
 export const isSupabaseEnabled = Boolean(url && anonKey)

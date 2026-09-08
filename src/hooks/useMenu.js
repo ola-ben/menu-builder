@@ -209,12 +209,60 @@ export function readRestaurant() {
   }
 }
 
+export const DEMO_RESTAURANT = {
+  id: 'demo',
+  name: "Mama Nkechi's Kitchen",
+  tagline: 'Authentic Nigerian Jollof, Pepper Soups & Refreshing Drinks',
+  logoUrl: '',
+  whatsappNumber: '2348012345678',
+  categories: [
+    { id: 'cat-1', name: 'Main Dishes' },
+    { id: 'cat-2', name: 'Soups & Pepper Specials' },
+    { id: 'cat-3', name: 'Chilled Drinks' },
+  ],
+  items: [
+    {
+      id: 'item-1',
+      categoryId: 'cat-1',
+      name: 'Smoky Party Jollof & Peppered Chicken',
+      priceNaira: 3500,
+      description: 'Firewood smoky party jollof served with fried sweet dodo and spicy peppered chicken.',
+      imageUrl: '/jollof.png',
+      available: true,
+      tag: 'Best Seller 🔥',
+    },
+    {
+      id: 'item-2',
+      categoryId: 'cat-2',
+      name: 'Catfish Pepper Soup',
+      priceNaira: 2500,
+      description: 'Fresh point-and-kill catfish simmered in hot native spices, uziza, and scent leaves.',
+      imageUrl: '/catfish.png',
+      available: true,
+      tag: 'Hot & Spicy',
+    },
+    {
+      id: 'item-3',
+      categoryId: 'cat-3',
+      name: 'Chilled Zobo Drink',
+      priceNaira: 1000,
+      description: 'Freshly brewed hibiscus infused with ginger, pineapple juice, and aromatic cloves.',
+      imageUrl: '/zobo.png',
+      available: true,
+      tag: 'Freshly Brewed',
+    },
+  ],
+}
+
 /**
  * Fetch a menu by its id for the public page. Uses Supabase when enabled (so any
  * diner on any device can load it), otherwise falls back to the local menu.
  * Returns the restaurant object, or null if not found.
  */
 export async function fetchMenuById(id) {
+  if (id === 'demo' || id === 'mama-nkechis-kitchen' || id?.toLowerCase()?.includes('demo')) {
+    return DEMO_RESTAURANT
+  }
   if (isSupabaseEnabled) {
     try {
       const { data, error } = await supabase.from('menus').select('*').eq('id', id).maybeSingle()
@@ -225,7 +273,7 @@ export async function fetchMenuById(id) {
     }
   }
   const local = readRestaurant()
-  return local && local.id === id ? local : null
+  return local && local.id === id ? local : DEMO_RESTAURANT
 }
 
 /**

@@ -110,11 +110,11 @@ export default function Navbar() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -32 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[100] flex flex-col justify-between bg-black/60 px-6 py-6 backdrop-blur-xl border border-white/10 sm:hidden"
+            initial={{ x: '100%', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 260 }}
+            className="fixed inset-0 z-[100] flex flex-col justify-between bg-black/80 px-6 py-6 backdrop-blur-xl border-l border-white/10 sm:hidden"
           >
             {/* Top Bar inside mobile menu */}
             <div className="flex items-center justify-between">
