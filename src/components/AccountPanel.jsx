@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase, isSupabaseEnabled, signOut } from '../lib/supabase.js'
 import useToast from '../hooks/useToast.js'
 import Toast from './Toast.jsx'
@@ -12,23 +12,10 @@ export default function AccountPanel() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const { toast, showToast } = useToast()
-  const googleBtnRef = useRef(null)
-
-  const [isSimulated, setIsSimulated] = useState(false)
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setIsSimulated(localStorage.getItem('qr-menu:simulated_login') === 'true')
-    }
-  }, [])
-
-  const displayIsAnon = isSimulated ? false : isAnon
-  const displayEmail = isSimulated ? 'owner@bukkaexpress.com' : userEmail
-  const displayIsSupabaseEnabled = isSimulated ? true : isSupabaseEnabled
 
   useEffect(() => {
     let cancelled = false
-    if (isSupabaseEnabled) {
+    if (isSupabaseEnabled && supabase) {
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (!cancelled && session) {
           const anonymous = session.user?.is_anonymous ?? (!session.user?.email || session.user?.app_metadata?.provider === 'anonymous')
@@ -43,7 +30,7 @@ export default function AccountPanel() {
   }, [])
 
   const handleGoogleSignIn = async () => {
-    if (!displayIsSupabaseEnabled || !supabase) {
+    if (!isSupabaseEnabled || !supabase) {
       setError('Supabase is not configured.')
       return
     }
@@ -65,13 +52,7 @@ export default function AccountPanel() {
 
   const handleSignOut = async () => {
     if (confirm('Are you sure you want to sign out? Your menu details and dishes will remain safe in the database.')) {
-      if (isSimulated) {
-        localStorage.removeItem('qr-menu:simulated_login')
-        localStorage.removeItem('qr-menu:restaurant')
-        localStorage.removeItem('qr-menu:orders')
-      } else {
-        await signOut()
-      }
+      await signOut()
       window.location.reload()
     }
   }
@@ -82,19 +63,19 @@ export default function AccountPanel() {
         <h2 className="font-display text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
           Account &amp; Menu Backup
         </h2>
-        <p className="mt-1 text-sm text-slate-550 dark:text-slate-400">
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Secure your dishes, categories, and customer orders.
         </p>
       </div>
 
-      {!displayIsSupabaseEnabled ? (
+      {!isSupabaseEnabled ? (
         <div className="border border-amber-500/20 bg-amber-500/[0.06] p-4 text-sm text-amber-600 dark:text-amber-400 rounded-2xl">
           ⚠️ Database integration is not configured. Account backups require Supabase env configurations.
         </div>
-      ) : displayIsAnon ? (
+      ) : isAnon ? (
         <div className="space-y-6">
-          <div className="border border-brand-500/20 bg-brand-500/[0.04] p-4 text-sm leading-relaxed text-slate-700 dark:text-slate-355 rounded-2xl">
-            <p className="font-semibold text-brand-650 dark:text-brand-400 flex items-center gap-1.5 mb-1.5">
+          <div className="border border-brand-500/20 bg-brand-500/[0.04] p-4 text-sm leading-relaxed text-slate-700 dark:text-slate-300 rounded-2xl">
+            <p className="font-semibold text-brand-600 dark:text-brand-400 flex items-center gap-1.5 mb-1.5">
               <Icon d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" className="h-5 w-5 text-brand-600 dark:text-brand-400" strokeWidth={2} />
               Your menu is currently saved in this browser.
             </p>
@@ -126,9 +107,9 @@ export default function AccountPanel() {
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="border border-brand-500/25 bg-brand-500/[0.06] p-4 text-sm text-slate-755 dark:text-slate-300 rounded-2xl">
+          <div className="border border-brand-500/25 bg-brand-500/[0.06] p-4 text-sm text-slate-700 dark:text-slate-300 rounded-2xl">
             <h4 className="font-semibold text-brand-600 dark:text-brand-400 flex items-center gap-1.5 mb-2">
-              <Icon d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" className="h-5 w-5 text-brand-655" strokeWidth={2} />
+              <Icon d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" className="h-5 w-5 text-brand-600 dark:text-brand-400" strokeWidth={2} />
               Your menu is fully secured &amp; backed up!
             </h4>
             You are logged in with a permanent account. Your dishes, categories, and orders are stored safely in the database and can be accessed from any device.
@@ -136,9 +117,9 @@ export default function AccountPanel() {
 
           <div className="space-y-2 border-t border-slate-200 pt-5 dark:border-slate-800">
             <p className="text-sm font-mono tracking-wide text-slate-600 dark:text-slate-400">
-              Connected Email: <b className="text-slate-900 dark:text-white">{displayEmail}</b>
+              Connected Email: <b className="text-slate-900 dark:text-white">{userEmail}</b>
             </p>
-            <p className="text-xs text-slate-400 dark:text-slate-505">
+            <p className="text-xs text-slate-400 dark:text-slate-500">
               Session state: Permanent verified account.
             </p>
           </div>
@@ -159,3 +140,4 @@ export default function AccountPanel() {
     </div>
   )
 }
+

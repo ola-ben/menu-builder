@@ -128,7 +128,7 @@ export default function ChatWidget() {
           setShowPromo(false)
         }}
         aria-label={open ? 'Close assistant' : 'Open menu assistant'}
-        className="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center bg-brand-500 text-white transition-transform hover:scale-105 hover:bg-brand-600 dark:border-brand-500/20 dark:bg-brand-500 dark:hover:bg-brand-600 shadow-none"
+        className="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full bg-brand-500 text-white shadow-lift transition-transform hover:scale-105 hover:bg-brand-600 dark:bg-brand-500 dark:hover:bg-brand-600"
       >
         <Icon
           d={open ? 'M6 18L18 6M6 6l12 12' : 'M8 10.5h8M8 14h5m-9 6l3.5-2.5H18a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v14z'}

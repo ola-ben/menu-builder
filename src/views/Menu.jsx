@@ -143,7 +143,7 @@ export default function Menu({ menuId: propMenuId }) {
           <p className="mt-2 max-w-md text-slate-500 dark:text-slate-400">
             We couldn’t find this menu. The link may be incorrect, or the menu may have been removed.
           </p>
-          <Link to="/" className="btn-primary mt-6">Go home</Link>
+          <Link href="/" className="btn-primary mt-6 inline-block">Go home</Link>
         </div>
       </div>
     )
@@ -162,7 +162,7 @@ export default function Menu({ menuId: propMenuId }) {
           <p className="mt-2 text-slate-500 dark:text-slate-400">
             This menu isn’t taking orders right now. Please check back soon — or reach the restaurant directly.
           </p>
-          <Link to="/" className="btn-primary mt-6">Create your own free menu</Link>
+          <Link href="/" className="btn-primary mt-6 inline-block">Create your own free menu</Link>
           <p className="mt-6 text-xs uppercase tracking-widest text-slate-400">Powered by MenuLink</p>
         </div>
       </div>
@@ -174,7 +174,7 @@ export default function Menu({ menuId: propMenuId }) {
       {/* Top bar */}
       <div className="sticky top-0 z-30 border-b border-white/40 bg-white/70 backdrop-blur-xl dark:border-white/5 dark:bg-slate-950/70">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-          <Link to="/" className="text-sm font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center gap-1.5">
+          <Link href="/" className="text-sm font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center gap-1.5">
             🍽️ <span className="font-display font-bold text-ink dark:text-paper">MenuLink</span>
           </Link>
           <div className="flex items-center gap-2">

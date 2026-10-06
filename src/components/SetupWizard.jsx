@@ -29,24 +29,6 @@ export default function SetupWizard() {
   const [isAnon, setIsAnon] = useState(true)
   const { toast, showToast } = useToast()
 
-  const isSimulated = localStorage.getItem('qr-menu:simulated_login') === 'true'
-
-  // If simulated, override isAnon to false and skip Step 1 if step is currently 1
-  useEffect(() => {
-    if (isSimulated) {
-      setIsAnon(false)
-      let saved = null
-      try {
-        saved = localStorage.getItem('qr-menu:setup_wizard_step')
-      } catch {
-        // Ignore
-      }
-      if (!saved || saved === '1') {
-        setStep(2)
-      }
-    }
-  }, [isSimulated])
-
   // Step 1 Google Sign-in state
   const [authError, setAuthError] = useState(null)
   const [authLoading, setAuthLoading] = useState(false)
@@ -60,8 +42,7 @@ export default function SetupWizard() {
   // Fetch session on mount and listen to auth changes
   useEffect(() => {
     let cancelled = false
-    if (isSimulated) return // Bypass session fetch if simulating
-    if (isSupabaseEnabled) {
+    if (isSupabaseEnabled && supabase) {
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (!cancelled && session) {
           const anonymous = session.user?.is_anonymous ?? (!session.user?.email || session.user?.app_metadata?.provider === 'anonymous')

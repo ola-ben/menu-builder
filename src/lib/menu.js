@@ -106,9 +106,6 @@ export const DEMO_RESTAURANT = {
  * Returns the restaurant object, or null if not found.
  */
 export async function fetchMenuById(id) {
-  if (id === 'demo' || id === 'mama-nkechis-kitchen' || id?.toLowerCase()?.includes('demo')) {
-    return DEMO_RESTAURANT
-  }
   if (isSupabaseEnabled && supabase) {
     try {
       const { data, error } = await supabase.from('menus').select('*').eq('id', id).maybeSingle()
@@ -119,7 +116,7 @@ export async function fetchMenuById(id) {
     }
   }
   const local = readRestaurant()
-  return local && local.id === id ? local : DEMO_RESTAURANT
+  return local && local.id === id ? local : null
 }
 
 /**

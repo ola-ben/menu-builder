@@ -17,8 +17,14 @@ import SectionNav from '../components/SectionNav.jsx'
 import Icon from '../components/Icon.jsx'
 import SetupWizard from '../components/SetupWizard.jsx'
 import AccountPanel from '../components/AccountPanel.jsx'
-import DemoBanner from '../components/DemoBanner.jsx'
+import Link from 'next/link'
+import { supabase, isSupabaseEnabled } from '../lib/supabase.js'
 
+const ADMIN_EMAILS = [
+  'olaben09@gmail.com',
+  'benjaminsolaben@gmail.com',
+  ...(process.env.NEXT_PUBLIC_ADMIN_EMAIL ? [process.env.NEXT_PUBLIC_ADMIN_EMAIL.toLowerCase().trim()] : [])
+]
 
 // Sections the floating "jump to" menu links to (id must match the markup below).
 const NAV_SECTIONS = [
@@ -54,6 +60,7 @@ export default function Dashboard() {
 
   const { toast, showToast } = useToast()
   const [editing, setEditing] = useState(null)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const router = useRouter()
   const params = useParams()
@@ -61,6 +68,21 @@ export default function Dashboard() {
   const activeTab = tab || ''
 
   const hasRestaurant = Boolean(restaurant?.name?.trim() && restaurant?.whatsappNumber?.trim())
+
+  // Check admin session
+  useEffect(() => {
+    if (isSupabaseEnabled && supabase) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        const email = session?.user?.email?.toLowerCase().trim() || ''
+        setIsAdmin(ADMIN_EMAILS.includes(email))
+      })
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const email = session?.user?.email?.toLowerCase().trim() || ''
+        setIsAdmin(ADMIN_EMAILS.includes(email))
+      })
+      return () => subscription?.unsubscribe()
+    }
+  }, [])
 
   // Redirect based on restaurant configuration status
   useEffect(() => {
@@ -134,11 +156,23 @@ export default function Dashboard() {
   if (activeTab === 'setup') {
     return (
       <div className="space-y-8 animate-fade-in">
-        <DemoBanner />
+        {isAdmin && (
+          <div className="rounded-2xl border border-brand-500/20 bg-brand-500/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-brand-600 dark:text-brand-400 font-semibold">
+              <span>🛡️</span>
+              <span>Platform Administrator Account</span>
+            </div>
+            <Link
+              href="/admin"
+              className="btn-primary py-1.5 px-3 text-xs font-bold shrink-0 self-start sm:self-auto"
+            >
+              Open Admin Dashboard →
+            </Link>
+          </div>
+        )}
         <header className="border-b border-slate-200 pb-8 dark:border-slate-800">
           <span className="eyebrow">Your dashboard</span>
           <h1 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-
             My <span className="text-gradient">Menu</span>
           </h1>
           <p className="mt-2 text-slate-600 dark:text-slate-400">
@@ -152,7 +186,20 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      <DemoBanner />
+      {isAdmin && (
+        <div className="rounded-2xl border border-brand-500/20 bg-brand-500/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-brand-600 dark:text-brand-400 font-semibold">
+            <span>🛡️</span>
+            <span>Platform Administrator Account</span>
+          </div>
+          <Link
+            href="/admin"
+            className="btn-primary py-1.5 px-3 text-xs font-bold shrink-0 self-start sm:self-auto"
+          >
+            Open Admin Dashboard →
+          </Link>
+        </div>
+      )}
       <header>
         <span className="eyebrow">Dashboard</span>
         <h1 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">

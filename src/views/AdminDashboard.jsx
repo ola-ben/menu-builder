@@ -214,6 +214,51 @@ export default function AdminDashboard() {
     }
   }
 
+  // Delete a single menu
+  const handleDeleteMenu = async (menuId, name) => {
+    if (!confirm(`Are you sure you want to permanently delete "${name || 'Untitled Restaurant'}" (${menuId})?`)) {
+      return
+    }
+    setActionBusy(true)
+    try {
+      await Promise.all([
+        supabase.from('menu_billing').delete().eq('menu_id', menuId),
+        supabase.from('menu_reviews').delete().eq('menu_id', menuId),
+        supabase.from('menus').delete().eq('id', menuId),
+      ])
+      showToast(`Deleted ${name || menuId}`, 'success')
+      loadData()
+    } catch (err) {
+      showToast(err.message || 'Failed to delete menu', 'error')
+    } finally {
+      setActionBusy(false)
+    }
+  }
+
+  // Clear all test menus
+  const handleClearAllTestData = async () => {
+    if (!confirm(`Are you sure you want to permanently delete ALL ${menus.length} test restaurant records? This will leave your database clean for real registrations.`)) {
+      return
+    }
+    setActionBusy(true)
+    try {
+      const ids = menus.map((m) => m.id)
+      if (ids.length > 0) {
+        await Promise.all([
+          supabase.from('menu_billing').delete().in('menu_id', ids),
+          supabase.from('menu_reviews').delete().in('menu_id', ids),
+          supabase.from('menus').delete().in('id', ids),
+        ])
+      }
+      showToast(`Cleared all ${menus.length} test menus! Database is fresh.`, 'success')
+      loadData()
+    } catch (err) {
+      showToast(err.message || 'Failed to clear test data', 'error')
+    } finally {
+      setActionBusy(false)
+    }
+  }
+
   // Generate 1-Click Welcome Email
   const getWelcomeEmailLink = (menu) => {
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://menulink.ng'
@@ -365,6 +410,20 @@ export default function AdminDashboard() {
               )}
             </div>
 
+            {/* Clear All Test Data */}
+            {menus.length > 0 && (
+              <button
+                type="button"
+                onClick={handleClearAllTestData}
+                disabled={actionBusy}
+                className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors flex items-center gap-1"
+                title="Delete all test restaurant data"
+              >
+                <span>🗑️</span>
+                <span className="hidden sm:inline">Clear All Test Menus</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={loadData}
@@ -415,7 +474,7 @@ export default function AdminDashboard() {
           </div>
         ) : filteredMenus.length === 0 ? (
           <div className="card p-12 text-center text-xs text-ink/50 dark:text-paper/50">
-            No restaurant menus found.
+            No registered restaurant menus yet. Database is completely clean!
           </div>
         ) : (
           <div className="card overflow-hidden border border-ink/10 dark:border-paper/10 shadow-sm">
@@ -511,6 +570,16 @@ export default function AdminDashboard() {
                                 </div>
                               )}
                             </div>
+
+                            {/* Delete Menu Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteMenu(m.id, m.name)}
+                              className="rounded-lg border border-rose-500/20 px-2 py-1 text-[11px] text-rose-500 hover:bg-rose-500/10 transition-colors"
+                              title="Delete this menu"
+                            >
+                              🗑️
+                            </button>
                           </div>
                         </td>
                       </tr>

@@ -12,7 +12,45 @@ const CHAT_ICON = 'M8 10.5h8M8 14h5m-9 6l3.5-2.5H18a2 2 0 002-2V6a2 2 0 00-2-2H6
 const GLOBE_ICON = 'M12 21a9 9 0 100-18 9 9 0 000 18zm0 0c-2.485 0-4.5-4.03-4.5-9s2.015-9 4.5-9 4.5 4.03 4.5 9-2.015 9-4.5 9zM3 12h18'
 
 const iconCls =
-  'grid h-9 w-9 place-items-center rounded-xl border border-slate-200 text-slate-500 transition hover:border-brand-400 hover:text-brand-600 dark:border-slate-700 dark:text-slate-400'
+  'grid h-9 w-9 place-items-center rounded-xl border border-slate-200 text-slate-500 transition-all hover:scale-105 dark:border-slate-700 dark:text-slate-400'
+
+const SOCIAL_LINKS = [
+  {
+    href: WHATSAPP,
+    label: 'WhatsApp',
+    external: true,
+    hoverClass: 'hover:!border-whatsapp-500 hover:!text-whatsapp-600',
+    icon: <WhatsappIcon className="h-4 w-4" />
+  },
+  {
+    href: TIKTOK,
+    label: 'TikTok',
+    external: true,
+    hoverClass: 'hover:!border-pink-500 hover:!text-pink-500',
+    icon: <TikTokIcon className="h-4 w-4" />
+  },
+  {
+    href: `mailto:${EMAIL}`,
+    label: 'Email',
+    external: false,
+    hoverClass: 'hover:!border-brand-500 hover:!text-brand-500',
+    icon: <Icon d={MAIL_ICON} className="h-4 w-4" />
+  },
+  {
+    href: PORTFOLIO,
+    label: 'Portfolio',
+    external: true,
+    hoverClass: 'hover:!border-blue-500 hover:!text-blue-500',
+    icon: <Icon d={GLOBE_ICON} className="h-4 w-4" />
+  },
+  {
+    href: '/contact',
+    label: 'Contact',
+    isNextLink: true,
+    hoverClass: 'hover:!border-brand-500 hover:!text-brand-500',
+    icon: <Icon d={CHAT_ICON} className="h-4 w-4" />
+  },
+]
 
 export default function Footer() {
   return (
@@ -30,24 +68,38 @@ export default function Footer() {
         </div>
 
         <div className="flex items-center gap-2">
-          <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"
-             className={`${iconCls} hover:!border-whatsapp-500 hover:!text-whatsapp-600`}>
-            <WhatsappIcon className="h-4 w-4" />
-          </a>
-          <a href={TIKTOK} target="_blank" rel="noopener noreferrer" aria-label="TikTok" className={iconCls}>
-            <TikTokIcon className="h-4 w-4" />
-          </a>
-          <a href={`mailto:${EMAIL}`} aria-label="Email" className={iconCls}>
-            <Icon d={MAIL_ICON} className="h-4 w-4" />
-          </a>
-          <a href={PORTFOLIO} target="_blank" rel="noopener noreferrer" aria-label="My portfolio website" className={iconCls}>
-            <Icon d={GLOBE_ICON} className="h-4 w-4" />
-          </a>
-          <Link href="/contact" aria-label="Contact page" className={iconCls}>
-            <Icon d={CHAT_ICON} className="h-4 w-4" />
-          </Link>
+          {SOCIAL_LINKS.map((item) => (
+            <div key={item.label} className="relative group">
+              {item.isNextLink ? (
+                <Link
+                  href={item.href}
+                  aria-label={item.label}
+                  className={`${iconCls} ${item.hoverClass}`}
+                >
+                  {item.icon}
+                </Link>
+              ) : (
+                <a
+                  href={item.href}
+                  target={item.external ? '_blank' : undefined}
+                  rel={item.external ? 'noopener noreferrer' : undefined}
+                  aria-label={item.label}
+                  className={`${iconCls} ${item.hoverClass}`}
+                >
+                  {item.icon}
+                </a>
+              )}
+
+              {/* Tooltip Badge on Hover */}
+              <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-zinc-900 px-2 py-0.5 text-[10px] font-medium text-white opacity-0 shadow-md transition-all duration-150 group-hover:-top-9 group-hover:opacity-100 dark:bg-zinc-100 dark:text-zinc-900 z-50">
+                {item.label}
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-900 dark:border-t-zinc-100" />
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </footer>
   )
 }
+
