@@ -60,11 +60,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
-      <body>
+      <head>
         {/* Prevent dark mode theme flash before hydration */}
-        <Script id="theme-init" strategy="beforeInteractive">
-          {`try{if(localStorage.getItem('qr-menu:theme')==='dark'){document.documentElement.classList.add('dark');}}catch(e){}`}
-        </Script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('qr-menu:theme')==='dark'){document.documentElement.classList.add('dark');}}catch(e){}`,
+          }}
+        />
+      </head>
+      <body>
         <InstallPrompt />
         {children}
         <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
