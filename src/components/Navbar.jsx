@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { supabase, isSupabaseEnabled } from '../lib/supabase.js'
 
 const links = [
   { href: '/', label: 'Home' },
@@ -13,8 +14,22 @@ const links = [
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [user, setUser] = useState(null)
   const pathname = usePathname()
   const isHome = pathname === '/'
+
+  // Track user auth status
+  useEffect(() => {
+    if (isSupabaseEnabled && supabase) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setUser(session?.user || null)
+      })
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user || null)
+      })
+      return () => subscription?.unsubscribe()
+    }
+  }, [])
 
   // Lock body scrolling when mobile menu is open
   useEffect(() => {
@@ -27,6 +42,8 @@ export default function Navbar() {
       document.body.style.overflow = ''
     }
   }, [isMobileMenuOpen])
+
+  const isLoggedIn = user && !user.is_anonymous && user.email
 
   return (
     <>
@@ -55,8 +72,8 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <div className="hidden sm:flex items-center gap-2">
+          {/* Desktop Navigation Links & Sign In for sm, md, lg */}
+          <div className="hidden sm:flex items-center gap-4 md:gap-6">
             <ul className="flex items-center gap-1">
               {links.map(({ href, label }) => {
                 const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href)
@@ -67,16 +84,16 @@ export default function Navbar() {
                       className={`relative px-3 py-2 font-mono text-xs uppercase tracking-wider transition-colors ${
                         isHome 
                           ? isActive 
-                            ? 'text-white' 
-                            : 'text-white/60 hover:text-white'
+                            ? 'text-white font-bold' 
+                            : 'text-white/70 hover:text-white'
                           : isActive
-                            ? 'text-ink dark:text-paper'
-                            : 'text-ink/45 hover:text-ink dark:text-paper/45 dark:hover:text-paper'
+                            ? 'text-ink dark:text-paper font-bold'
+                            : 'text-ink/60 hover:text-ink dark:text-paper/60 dark:hover:text-paper'
                       }`}
                     >
                       {label}
                       {isActive && (
-                        <span className={`absolute inset-x-3 bottom-0 h-px ${
+                        <span className={`absolute inset-x-3 bottom-0 h-0.5 ${
                           isHome ? 'bg-white' : 'bg-whatsapp-600'
                         }`} />
                       )}
@@ -85,6 +102,30 @@ export default function Navbar() {
                 )
               })}
             </ul>
+
+            {/* Desktop Sign In / Dashboard Button */}
+            <div className="flex items-center pl-2 border-l border-white/15 dark:border-paper/15">
+              <Link
+                href="/dashboard"
+                className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold tracking-normal transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm ${
+                  isHome
+                    ? 'bg-white text-ink hover:bg-whatsapp-500 hover:text-white'
+                    : 'bg-ink text-paper hover:bg-whatsapp-600 dark:bg-paper dark:text-ink dark:hover:bg-whatsapp-600 dark:hover:text-white'
+                }`}
+              >
+                {isLoggedIn ? (
+                  <>
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Dashboard</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Sign In</span>
+                    <span className="text-[10px] opacity-70">→</span>
+                  </>
+                )}
+              </Link>
+            </div>
           </div>
 
           {/* Mobile Menu Icon Toggle */}

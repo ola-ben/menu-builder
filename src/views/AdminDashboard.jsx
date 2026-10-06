@@ -8,11 +8,21 @@ import { formatNaira } from '../utils/format.js'
 import useToast from '../hooks/useToast.js'
 import Toast from '../components/Toast.jsx'
 
+const ADMIN_EMAILS = [
+  'olaben09@gmail.com',
+  'benjaminsolaben@gmail.com',
+  ...(process.env.NEXT_PUBLIC_ADMIN_EMAIL ? [process.env.NEXT_PUBLIC_ADMIN_EMAIL.toLowerCase().trim()] : [])
+]
+
 export default function AdminDashboard() {
   const { toast, showToast } = useToast()
+  const [currentUser, setCurrentUser] = useState(null)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [authLoading, setAuthLoading] = useState(true)
+
   const [menus, setMenus] = useState([])
   const [billingMap, setBillingMap] = useState({})
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [activeDropdownId, setActiveDropdownId] = useState(null)
   const [bulkDropdownOpen, setBulkDropdownOpen] = useState(false)
@@ -21,7 +31,40 @@ export default function AdminDashboard() {
   const dropdownRef = useRef(null)
   const bulkRef = useRef(null)
 
-  // Outside click & ESC listeners to fix buggy CSS hover
+  // Auth & Admin check
+  useEffect(() => {
+    if (!isSupabaseEnabled || !supabase) {
+      setAuthLoading(false)
+      return
+    }
+
+    const checkUser = (user) => {
+      setCurrentUser(user)
+      const email = user?.email?.toLowerCase().trim() || ''
+      const authorized = ADMIN_EMAILS.includes(email)
+      setIsAdmin(authorized)
+      setAuthLoading(false)
+      if (authorized) {
+        loadData()
+      }
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      checkUser(session?.user || null)
+    })
+
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      checkUser(session?.user || null)
+    })
+
+    return () => {
+      subscription?.unsubscribe()
+    }
+  }, [])
+
+  // Outside click & ESC listeners for dropdowns
   useEffect(() => {
     const handleOutsideClick = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -74,9 +117,36 @@ export default function AdminDashboard() {
     }
   }
 
-  useEffect(() => {
-    loadData()
-  }, [])
+  const handleAdminGoogleSignIn = async () => {
+    if (!isSupabaseEnabled || !supabase) {
+      showToast('Supabase is not configured yet.', 'error')
+      return
+    }
+    try {
+      const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/admin` : undefined
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo }
+      })
+      if (error) throw error
+    } catch (err) {
+      showToast(err.message || 'Google sign-in failed', 'error')
+    }
+  }
+
+  const handleAdminSignOut = async () => {
+    if (!supabase) return
+    try {
+      await supabase.auth.signOut()
+      setCurrentUser(null)
+      setIsAdmin(false)
+      setMenus([])
+      setBillingMap({})
+      showToast('Signed out from Admin', 'info')
+    } catch (err) {
+      showToast('Sign out failed', 'error')
+    }
+  }
 
   const filteredMenus = useMemo(() => {
     if (!search.trim()) return menus
@@ -166,15 +236,101 @@ export default function AdminDashboard() {
     return `mailto:?subject=${subject}&body=${body}`
   }
 
+  // 1. Auth Loading State
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="card max-w-sm w-full p-8 text-center space-y-3">
+          <div className="inline-block animate-spin text-2xl">⏳</div>
+          <p className="font-display font-semibold text-ink dark:text-paper">Verifying Admin Permissions…</p>
+          <p className="text-xs text-ink/50 dark:text-paper/50 font-mono">Checking security credentials</p>
+        </div>
+      </div>
+    )
+  }
+
+  // 2. Unauthorized or Unauthenticated State
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="card max-w-md w-full p-8 text-center space-y-6 border border-ink/10 dark:border-paper/10 shadow-2xl">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-500/10 text-3xl">
+            🛡️
+          </div>
+
+          <div className="space-y-2">
+            <h1 className="font-display text-2xl font-bold text-ink dark:text-paper">
+              Admin Access Required
+            </h1>
+            <p className="text-xs text-ink/65 dark:text-paper/65 leading-relaxed">
+              This dashboard is restricted to authorized platform administrators (<strong>olaben09@gmail.com</strong>).
+            </p>
+          </div>
+
+          {currentUser ? (
+            <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-4 text-xs text-rose-600 dark:text-rose-400 space-y-2">
+              <p className="font-medium">
+                Signed in as: <strong>{currentUser.email}</strong>
+              </p>
+              <p className="text-[11px] opacity-80">
+                This account does not have administrative privileges.
+              </p>
+              <div className="pt-2 flex justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleAdminSignOut}
+                  className="rounded-lg border border-rose-500/30 px-3 py-1.5 font-bold hover:bg-rose-500/10 transition-colors"
+                >
+                  Sign Out & Switch Account
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          <div>
+            <button
+              type="button"
+              onClick={handleAdminGoogleSignIn}
+              className="w-full rounded-xl border border-ink/15 bg-paper hover:bg-ink/[0.03] text-ink dark:border-paper/20 dark:bg-zinc-900 dark:hover:bg-paper/5 font-semibold py-3 px-4 shadow-sm flex items-center justify-center gap-3 transition-all duration-150 hover:shadow"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Sign In as Admin with Google</span>
+            </button>
+          </div>
+
+          <div className="pt-2">
+            <Link
+              href="/"
+              className="text-xs font-mono text-ink/50 hover:text-ink dark:text-paper/50 dark:hover:text-paper hover:underline"
+            >
+              ← Return to MenuLink Home
+            </Link>
+          </div>
+        </div>
+        <Toast toast={toast} />
+      </div>
+    )
+  }
+
+  // 3. Authorized Admin View
   return (
     <div className="min-h-screen pb-20">
       {/* Admin Top Header */}
       <div className="border-b border-ink/10 bg-paper/80 backdrop-blur-md dark:border-paper/10 dark:bg-zinc-950/80 sticky top-0 z-30 px-4 py-3">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="font-display text-lg font-bold text-ink dark:text-paper">
               🍽️ MenuLink <span className="rounded bg-brand-500/15 px-2 py-0.5 font-mono text-[10px] text-brand-600 dark:text-brand-400">ADMIN</span>
             </Link>
+            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[11px] text-emerald-600 dark:text-emerald-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              {currentUser?.email}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -216,6 +372,15 @@ export default function AdminDashboard() {
               title="Refresh"
             >
               ↻
+            </button>
+
+            <button
+              type="button"
+              onClick={handleAdminSignOut}
+              className="rounded-xl border border-ink/15 px-3 py-1.5 text-xs font-medium text-ink/60 hover:text-rose-600 dark:border-paper/15 dark:text-paper/60 dark:hover:text-rose-400 transition-colors"
+              title="Sign Out"
+            >
+              Sign Out
             </button>
           </div>
         </div>
@@ -362,3 +527,4 @@ export default function AdminDashboard() {
     </div>
   )
 }
+

@@ -42,68 +42,26 @@ export default function AccountPanel() {
     }
   }, [])
 
-  const googleClientId =
-    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-    process.env.VITE_GOOGLE_CLIENT_ID ||
-    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GOOGLE_CLIENT_ID) ||
-    ''
-
-  // Initialize Google Sign-In client library
-  useEffect(() => {
-    if (!displayIsAnon || !displayIsSupabaseEnabled) return
-
-    const initGoogleGsi = () => {
-      /* global google */
-      if (typeof google !== 'undefined' && googleBtnRef.current) {
-        try {
-          google.accounts.id.initialize({
-            client_id: googleClientId,
-            callback: async (response) => {
-              setError(null)
-              setLoading(true)
-              try {
-                // Send the ID token received from Google to Supabase
-                const { error: err } = await supabase.auth.signInWithIdToken({
-                  provider: 'google',
-                  token: response.credential,
-                })
-                if (err) throw err
-                
-                showToast('Menu secured successfully! 🎉', 'success')
-                setTimeout(() => {
-                  window.location.reload()
-                }, 1000)
-              } catch (err) {
-                setError(err.message || 'Google sign in failed.')
-              } finally {
-                setLoading(false)
-              }
-            },
-          })
-          
-          google.accounts.id.renderButton(googleBtnRef.current, {
-            theme: 'outline',
-            size: 'large',
-            shape: 'rectangular',
-            width: googleBtnRef.current.parentElement?.clientWidth || 320,
-          })
-        } catch (e) {
-          console.error('Failed to initialize Google Sign-In:', e)
-        }
-      }
+  const handleGoogleSignIn = async () => {
+    if (!displayIsSupabaseEnabled || !supabase) {
+      setError('Supabase is not configured.')
+      return
     }
-
-    initGoogleGsi()
-    // Retry initialization in case script loads slowly
-    const interval = setInterval(() => {
-      if (typeof google !== 'undefined') {
-        initGoogleGsi()
-        clearInterval(interval)
-      }
-    }, 500)
-
-    return () => clearInterval(interval)
-  }, [displayIsAnon, displayIsSupabaseEnabled, googleClientId, showToast])
+    setError(null)
+    setLoading(true)
+    try {
+      const { error: err } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : undefined,
+        },
+      })
+      if (err) throw err
+    } catch (err) {
+      setError(err.message || 'Google sign-in failed.')
+      setLoading(false)
+    }
+  }
 
   const handleSignOut = async () => {
     if (confirm('Are you sure you want to sign out? Your menu details and dishes will remain safe in the database.')) {
@@ -149,21 +107,22 @@ export default function AccountPanel() {
             </div>
           )}
 
-          {!googleClientId ? (
-            <div className="border border-amber-500/20 bg-amber-500/[0.06] p-4 text-sm text-amber-655 dark:text-amber-400 rounded-2xl">
-              ⚠️ Google Client ID is not configured. Please define <code>NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> in your <code>.env</code> file.
-            </div>
-          ) : (
-            <div className="space-y-4 max-w-md">
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-350">
-                Link with Google:
-              </p>
-              <div className="flex w-full min-h-[44px]">
-                <div ref={googleBtnRef} className="w-full"></div>
-              </div>
-              {loading && <p className="text-xs text-slate-400">Securing your account...</p>}
-            </div>
-          )}
+          <div className="space-y-4 max-w-md pt-2">
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 rounded-2xl border border-slate-300 bg-white px-6 py-3.5 text-sm font-bold text-slate-800 shadow-sm transition-all hover:bg-slate-50 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 disabled:opacity-60"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+              </svg>
+              <span>{loading ? 'Redirecting to Google…' : 'Continue with Google'}</span>
+            </button>
+          </div>
         </div>
       ) : (
         <div className="space-y-6">
