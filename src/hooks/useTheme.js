@@ -5,6 +5,7 @@ const KEY = 'qr-menu:theme'
 /** Light/dark theme with a class on <html> and persistence. */
 export default function useTheme() {
   const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') return 'light'
     try {
       return localStorage.getItem(KEY) === 'dark' ? 'dark' : 'light'
     } catch {

@@ -1,7 +1,5 @@
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import Icon from '../components/Icon.jsx'
-import useSEO from '../hooks/useSEO.js'
-
 
 const SECTIONS = [
   {
@@ -29,22 +27,17 @@ const SECTIONS = [
     content: 'We implement standard industry security practices, including Secure Socket Layer (SSL/TLS) encryption and Supabase Row Level Security (RLS) policies, to protect your accounts and menus from unauthorized access.'
   },
   {
-    title: '7. Your Rights & Choice',
-    content: 'You can update or delete your restaurant profile, categories, and menu items directly from the vendor dashboard at any time. To request complete deletion of your user account, please reach out to us via email or WhatsApp.'
+    title: '7. Updates to This Policy',
+    content: 'We may update our Privacy Policy periodically to reflect shifts in our practices or legal obligations. We encourage users to check this page periodically for any updates.'
   }
 ]
 
 export default function Privacy() {
-  useSEO({
-    title: 'Privacy Policy | MenuLink',
-    description: 'Read the Privacy Policy for using MenuLink.',
-  })
-
   return (
     <div className="mx-auto max-w-3xl animate-fade-in space-y-10">
       <header>
         <div className="flex items-center gap-2">
-          <Link to="/" className="btn-ghost py-1 px-2.5 text-xs inline-flex items-center gap-1">
+          <Link href="/" className="btn-ghost py-1 px-2.5 text-xs inline-flex items-center gap-1">
             <Icon d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" className="h-3.5 w-3.5" />
             Home
           </Link>
@@ -54,14 +47,14 @@ export default function Privacy() {
         <h1 className="mt-4 font-display text-4xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-5xl">
           Privacy <span className="text-gradient">Policy</span>
         </h1>
-        <p className="mt-3 text-sm text-slate-650 dark:text-slate-400">
-          Last updated: July 7, 2026. Please read this policy carefully to understand our privacy practices.
+        <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
+          Last updated: July 7, 2026. How we collect, handle, and secure your personal and restaurant data.
         </p>
       </header>
 
       <div className="card divide-y divide-slate-100 p-6 dark:divide-slate-800/60 sm:p-8 space-y-6">
         <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-          At MenuLink, we value the privacy of our restaurant partners and their diners. This Privacy Policy describes how we collect, protect, and handle data when you use our platform.
+          At MenuLink, your privacy and business trust are top priorities. This Privacy Policy details the types of data we process, why we need it, and how your information is safeguarded.
         </p>
 
         <div className="space-y-6 pt-6">
@@ -80,7 +73,7 @@ export default function Privacy() {
 
       <div className="text-center">
         <p className="text-xs text-slate-500">
-          Have questions about your data? <Link to="/contact" className="text-brand-600 hover:underline dark:text-brand-400">Contact Support</Link>
+          Have privacy questions? <Link href="/contact" className="text-brand-600 hover:underline dark:text-brand-400">Contact our team</Link>
         </p>
       </div>
     </div>

@@ -1,5 +1,7 @@
+'use client'
+
 import { useState, useMemo, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { QRCodeCanvas } from 'qrcode.react'
 import Icon, { WhatsappIcon } from '../components/Icon.jsx'
 import { formatNaira } from '../utils/format.js'
@@ -63,13 +65,14 @@ export default function Landing() {
   // Custom QR preview link
   const customMenuUrl = useMemo(() => {
     const slug = (customName || 'my-restaurant').toLowerCase().replace(/[^a-z0-9]/g, '-')
-    return `${window.location.origin}/menu/${slug}?table=${customTable}`
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://menulink.vercel.app'
+    return `${origin}/menu/${slug}?table=${customTable}`
   }, [customName, customTable])
 
   return (
     <div className="space-y-28">
       {/* Hero Section - Full Bleed Background */}
-      <section 
+      <section
         className="relative w-full min-h-[105vh] bg-cover bg-center overflow-hidden border-b border-ink/12 dark:border-paper/12 flex flex-col justify-center pb-12 lg:pb-16"
         style={{
           backgroundImage: "linear-gradient(to bottom, rgba(11, 11, 11, 0.45), rgba(11, 11, 11, 0.65)), url('/hero_food_bg.jpg')"
@@ -78,17 +81,17 @@ export default function Landing() {
         {/* Glow Ribbon Loop (SVG at bottom) */}
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden pointer-events-none select-none h-32 z-10">
           <svg className="w-full h-full" viewBox="0 0 1440 160" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path 
-              d="M-100,120 C200,120 300,140 400,110 C500,80 450,20 350,40 C250,60 300,120 500,130 C700,140 900,100 1100,115 C1300,130 1400,100 1600,120" 
-              stroke="#22c55e" 
-              strokeWidth="2.5" 
+            <path
+              d="M-100,120 C200,120 300,140 400,110 C500,80 450,20 350,40 C250,60 300,120 500,130 C700,140 900,100 1100,115 C1300,130 1400,100 1600,120"
+              stroke="#22c55e"
+              strokeWidth="2.5"
               strokeLinecap="round"
               className="opacity-75 filter drop-shadow-[0_0_6px_rgba(34,197,94,0.8)]"
             />
-            <path 
-              d="M-80,125 C210,125 305,142 395,112 C485,82 440,25 355,42 C270,60 310,118 495,127 C680,136 880,102 1085,117 C1290,132 1390,102 1580,122" 
-              stroke="#10b981" 
-              strokeWidth="1" 
+            <path
+              d="M-80,125 C210,125 305,142 395,112 C485,82 440,25 355,42 C270,60 310,118 495,127 C680,136 880,102 1085,117 C1290,132 1390,102 1580,122"
+              stroke="#10b981"
+              strokeWidth="1"
               className="opacity-40 filter drop-shadow-[0_0_3px_rgba(16,185,129,0.5)]"
             />
           </svg>
@@ -110,7 +113,7 @@ export default function Landing() {
                 Diners scan the table QR code to browse your menu, choose portions, and send their order straight to your WhatsApp. Zero commissions, zero printing costs.
               </p>
               <div className="mt-6 lg:mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
-                <Link to="/dashboard" className="btn-primary">
+                <Link href="/dashboard" className="btn-primary">
                   Build your menu — free
                 </Link>
                 <a href="#how-it-works" className="btn-ghost border-white/20 text-white hover:border-white hover:bg-white/[0.04]">
@@ -307,282 +310,283 @@ export default function Landing() {
       {/* Centered Main Page Contents Wrap */}
       <div className="mx-auto w-full max-w-5xl lg:max-w-7xl px-4 pb-20 sm:px-6 lg:px-8 space-y-16 lg:space-y-20">
 
-      {/* Simulated Order Preview Modal */}
-      <AnimatePresence>
-        {showOrderModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md"
-          >
+        {/* Simulated Order Preview Modal */}
+        <AnimatePresence>
+          {showOrderModal && (
             <motion.div
-              initial={{ scale: 0.92, opacity: 0, y: 15 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 10 }}
-              transition={{ type: "spring", damping: 25, stiffness: 350 }}
-              className="card w-full max-w-md p-6 shadow-2xl border border-ink/15 dark:border-paper/15"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md"
             >
-              <h3 className="font-display text-lg font-semibold tracking-tight text-ink dark:text-paper flex items-center gap-2">
-                <span>🎉</span> Order Ready for WhatsApp!
-              </h3>
-              <p className="mt-2 text-xs text-ink/60 dark:text-paper/55">
-                Exact structured message sent to your restaurant's WhatsApp:
+              <motion.div
+                initial={{ scale: 0.92, opacity: 0, y: 15 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                transition={{ type: "spring", damping: 25, stiffness: 350 }}
+                className="card w-full max-w-md p-6 shadow-2xl border border-ink/15 dark:border-paper/15"
+              >
+                <h3 className="font-display text-lg font-semibold tracking-tight text-ink dark:text-paper flex items-center gap-2">
+                  <span>🎉</span> Order Ready for WhatsApp!
+                </h3>
+                <p className="mt-2 text-xs text-ink/60 dark:text-paper/55">
+                  Exact structured message sent to your restaurant's WhatsApp:
+                </p>
+
+                <div className="mt-4 border border-ink/12 bg-brand-100/60 p-3.5 font-mono text-xs text-ink dark:border-paper/12 dark:bg-white/[0.04] dark:text-paper rounded-xl">
+                  <p className="font-bold text-whatsapp-700 dark:text-whatsapp-500">📲 WhatsApp Message:</p>
+                  <div className="mt-2 space-y-1">
+                    <p>Hello *Mama Nkechi’s Kitchen*, I would like to place an order:</p>
+                    <p>---</p>
+                    {cartItems.map(c => (
+                      <p key={c.item.id}>• {c.qty}x *{c.item.name}* ({formatNaira(c.item.price)})</p>
+                    ))}
+                    <p>---</p>
+                    <p>📍 *Table 4*</p>
+                    <p>💰 Total: *{formatNaira(totalPrice)}*</p>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <button
+                    type="button"
+                    onClick={() => setShowOrderModal(false)}
+                    className="btn-primary w-full py-2.5 text-xs font-bold"
+                  >
+                    Awesome, got it!
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        {/* 1. How It Works Steps (2-Column Editorial Layout on md/lg, Boxed on mobile) */}
+        <motion.section
+          id="how-it-works"
+          initial={{ opacity: 0, y: 35 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: !isLg, amount: isLg ? 0.25 : 0.1 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="scroll-mt-24 py-4"
+        >
+          <div className="grid gap-8 md:gap-12 md:grid-cols-12 items-start">
+            {/* Left Column: Heading */}
+            <div className="md:col-span-5">
+              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-ink/45 dark:text-paper/45">
+                How It Works
               </p>
-              
-              <div className="mt-4 border border-ink/12 bg-brand-100/60 p-3.5 font-mono text-xs text-ink dark:border-paper/12 dark:bg-white/[0.04] dark:text-paper rounded-xl">
-                <p className="font-bold text-whatsapp-700 dark:text-whatsapp-500">📲 WhatsApp Message:</p>
-                <div className="mt-2 space-y-1">
-                  <p>Hello *Mama Nkechi’s Kitchen*, I would like to place an order:</p>
-                  <p>---</p>
-                  {cartItems.map(c => (
-                    <p key={c.item.id}>• {c.qty}x *{c.item.name}* ({formatNaira(c.item.price)})</p>
-                  ))}
-                  <p>---</p>
-                  <p>📍 *Table 4*</p>
-                  <p>💰 Total: *{formatNaira(totalPrice)}*</p>
+              <h2 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-ink dark:text-paper leading-[1.12]">
+                From table to WhatsApp in three steps.
+              </h2>
+            </div>
+
+            {/* Right Column: Step Rows (Boxed on mobile, sleek stripes on md & lg) */}
+            <div className="md:col-span-7 md:border-l md:border-ink/12 md:pl-10 md:dark:border-paper/12">
+              <div className="flex flex-col gap-4 md:gap-0 md:divide-y md:divide-ink/10 md:dark:divide-paper/10">
+                {[
+                  {
+                    title: 'Scan table QR',
+                    desc: 'Guests scan the table QR placard with their phone camera. Instant interactive menu, zero app downloads.',
+                  },
+                  {
+                    title: 'Pick meals & portions',
+                    desc: 'Diners browse categories, choose portions, and add dishes directly to their order cart.',
+                  },
+                  {
+                    title: 'Get orders on WhatsApp',
+                    desc: 'One tap bundles the full order with table number and sends it straight to your WhatsApp chat.',
+                  },
+                ].map((s, i) => (
+                  <motion.div 
+                    key={s.title} 
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: !isLg, amount: 0.2 }}
+                    transition={{ duration: 0.45, delay: isLg ? i * 0.08 : 0 }}
+                    className="grid grid-cols-[auto,1fr] gap-4 sm:gap-6 p-5 sm:p-6 rounded-2xl border border-ink/10 bg-white/70 dark:bg-white/[0.03] dark:border-paper/10 shadow-sm transition-all hover:border-ink/20 dark:hover:border-paper/20 md:rounded-none md:border-0 md:bg-transparent md:dark:bg-transparent md:shadow-none md:p-0 md:py-6 md:first:pt-0 md:last:pb-0"
+                  >
+                    <span className="grid h-8 w-8 place-items-center rounded-xl bg-ink/5 font-mono text-xs font-bold text-ink/60 dark:bg-paper/10 dark:text-paper/60 md:h-auto md:w-auto md:rounded-none md:bg-transparent md:dark:bg-transparent md:text-sm md:text-ink/35 md:dark:text-paper/35">
+                      0{i + 1}
+                    </span>
+                    <div>
+                      <h3 className="font-display text-base sm:text-lg font-semibold tracking-tight text-ink dark:text-paper">
+                        {s.title}
+                      </h3>
+                      <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-ink/65 dark:text-paper/60">
+                        {s.desc}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* 2. Why MenuLink / Value Props Grid (2x2 Quadrant on md/lg, Boxed cards on mobile) */}
+        <motion.section
+          initial={{ opacity: 0, y: 35 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: !isLg, amount: isLg ? 0.25 : 0.1 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="py-6 sm:py-10"
+        >
+          <div className="grid gap-10 md:gap-12 md:grid-cols-12 items-start">
+            {/* Left Column: Heading */}
+            <div className="md:col-span-4">
+              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-ink/45 dark:text-paper/45">
+                Why MenuLink
+              </p>
+              <h2 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-ink dark:text-paper leading-[1.15]">
+                Everything you need, nothing you don’t.
+              </h2>
+            </div>
+
+            {/* Right Column: Cards (Boxed on mobile, 2x2 Quadrant on md & lg) */}
+            <div className="md:col-span-8">
+              <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-0 md:border-t md:border-l md:border-ink/10 md:dark:border-paper/10">
+                {[
+                  {
+                    id: '01',
+                    title: 'No commission, ever',
+                    desc: 'Orders go straight to your WhatsApp. No middleman taking a cut of your restaurant sales.',
+                  },
+                  {
+                    id: '02',
+                    title: 'A QR code for everything',
+                    desc: 'Put it on table tents, flyers, packaging, and counter stands. Scan, browse, order.',
+                  },
+                  {
+                    id: '03',
+                    title: 'Looks great on any phone',
+                    desc: 'A clean, lightning-fast digital menu that loads instantly — even on 3G connections.',
+                  },
+                  {
+                    id: '04',
+                    title: 'Set up in minutes',
+                    desc: 'No app to download, no developer needed. If you can chat on WhatsApp, you can run your digital menu.',
+                  },
+                ].map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: !isLg, amount: 0.2 }}
+                    transition={{ duration: 0.45, delay: isLg ? index * 0.07 : 0 }}
+                    className="p-5 sm:p-6 rounded-2xl border border-ink/10 bg-white/70 dark:bg-white/[0.03] dark:border-paper/10 shadow-sm transition-all hover:border-ink/20 dark:hover:border-paper/20 md:rounded-none md:border-0 md:border-r md:border-b md:border-ink/10 md:dark:border-paper/10 md:bg-transparent md:dark:bg-transparent md:shadow-none md:p-8 flex flex-col justify-between"
+                  >
+                    <span className="grid h-8 w-8 place-items-center rounded-xl bg-ink/5 font-mono text-xs font-bold text-ink/60 dark:bg-paper/10 dark:text-paper/60 md:h-auto md:w-auto md:rounded-none md:bg-transparent md:dark:bg-transparent md:text-xs md:text-ink/35 md:dark:text-paper/35">
+                      /{item.id}
+                    </span>
+                    <div className="mt-3 sm:mt-6">
+                      <h3 className="font-display text-base sm:text-lg font-bold text-ink dark:text-paper tracking-tight">
+                        {item.title}
+                      </h3>
+                      <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-ink/65 dark:text-paper/60 leading-relaxed">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* 3. Live QR Placard Customizer Section (Modern & Compact) */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: !isLg, amount: isLg ? 0.25 : 0.1 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="card p-6 sm:p-10 relative overflow-hidden group border border-ink/10 dark:border-paper/10 shadow-lg"
+        >
+          <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-brand-500/10 blur-3xl" />
+
+          <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] items-center relative z-10">
+            {/* Customizer Control Inputs */}
+            <div>
+              <p className="eyebrow flex items-center gap-2 text-xs">
+                <span className="h-1.5 w-1.5 rounded-full bg-whatsapp-500 animate-pulse" />
+                Live Generator
+              </p>
+              <h2 className="mt-2 font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink dark:text-paper">
+                Custom Table Tent in seconds
+              </h2>
+              <p className="mt-2 text-xs sm:text-sm text-ink/65 dark:text-paper/60 max-w-md">
+                Type your restaurant name and table number to preview your printable QR placard live.
+              </p>
+
+              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md">
+                <div>
+                  <label htmlFor="sim-name" className="mb-1 block font-mono text-[10px] font-medium uppercase tracking-wider text-ink/55 dark:text-paper/50">
+                    Restaurant Name
+                  </label>
+                  <input
+                    id="sim-name"
+                    type="text"
+                    className="input-base py-2 text-xs"
+                    value={customName}
+                    onChange={(e) => setCustomName(e.target.value)}
+                    placeholder="Mama Nkechi’s Kitchen"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="sim-table" className="mb-1 block font-mono text-[10px] font-medium uppercase tracking-wider text-ink/55 dark:text-paper/50">
+                    Table Number
+                  </label>
+                  <input
+                    id="sim-table"
+                    type="number"
+                    min="1"
+                    className="input-base py-2 text-xs"
+                    value={customTable}
+                    onChange={(e) => setCustomTable(e.target.value)}
+                  />
                 </div>
               </div>
-
-              <div className="mt-5">
-                <button
-                  type="button"
-                  onClick={() => setShowOrderModal(false)}
-                  className="btn-primary w-full py-2.5 text-xs font-bold"
-                >
-                  Awesome, got it!
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* 1. How It Works Steps (2-Column Editorial Layout) */}
-      <motion.section
-        id="how-it-works"
-        initial={{ opacity: 0, y: 35 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: !isLg, amount: isLg ? 0.25 : 0.1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="scroll-mt-24 py-4"
-      >
-        <div className="grid gap-8 lg:gap-12 lg:grid-cols-12 items-start">
-          {/* Left Column: Heading */}
-          <div className="lg:col-span-5">
-            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-ink/45 dark:text-paper/45">
-              How It Works
-            </p>
-            <h2 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-ink dark:text-paper leading-[1.12]">
-              From table to WhatsApp in three steps.
-            </h2>
-          </div>
-
-          {/* Right Column: Divided Step Rows */}
-          <div className="lg:col-span-7 lg:border-l lg:border-ink/12 lg:pl-10 lg:dark:border-paper/12">
-            <div className="divide-y divide-ink/10 dark:divide-paper/10">
-              {[
-                {
-                  title: 'Scan table QR',
-                  desc: 'Guests scan the table QR placard with their phone camera. Instant interactive menu, zero app downloads.',
-                },
-                {
-                  title: 'Pick meals & portions',
-                  desc: 'Diners browse categories, choose portions, and add dishes directly to their order cart.',
-                },
-                {
-                  title: 'Get orders on WhatsApp',
-                  desc: 'One tap bundles the full order with table number and sends it straight to your WhatsApp chat.',
-                },
-              ].map((s, i) => (
-                <motion.div 
-                  key={s.title} 
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: !isLg, amount: 0.2 }}
-                  transition={{ duration: 0.45, delay: isLg ? i * 0.08 : 0 }}
-                  className="grid grid-cols-[auto,1fr] gap-6 py-6 first:pt-0 last:pb-0"
-                >
-                  <span className="font-mono text-sm text-ink/35 dark:text-paper/35">0{i + 1}</span>
-                  <div>
-                    <h3 className="font-display text-lg font-semibold tracking-tight text-ink dark:text-paper">
-                      {s.title}
-                    </h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-ink/60 dark:text-paper/55">
-                      {s.desc}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
             </div>
-          </div>
-        </div>
-      </motion.section>
 
-      {/* 2. Why MenuLink / Value Props Grid (2x2 Quadrant) */}
-      <motion.section
-        initial={{ opacity: 0, y: 35 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: !isLg, amount: isLg ? 0.25 : 0.1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="py-6 sm:py-10"
-      >
-        <div className="grid gap-10 lg:gap-12 lg:grid-cols-12 items-start">
-          {/* Left Column: Heading */}
-          <div className="lg:col-span-4">
-            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-ink/45 dark:text-paper/45">
-              Why MenuLink
-            </p>
-            <h2 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-ink dark:text-paper leading-[1.15]">
-              Everything you need, nothing you don’t.
-            </h2>
-          </div>
-
-          {/* Right Column: 2x2 Quadrant Grid */}
-          <div className="lg:col-span-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 border-t border-l border-ink/10 dark:border-paper/10">
-              {[
-                {
-                  id: '01',
-                  title: 'No commission, ever',
-                  desc: 'Orders go straight to your WhatsApp. No middleman taking a cut of your restaurant sales.',
-                },
-                {
-                  id: '02',
-                  title: 'A QR code for everything',
-                  desc: 'Put it on table tents, flyers, packaging, and counter stands. Scan, browse, order.',
-                },
-                {
-                  id: '03',
-                  title: 'Looks great on any phone',
-                  desc: 'A clean, lightning-fast digital menu that loads instantly — even on 3G connections.',
-                },
-                {
-                  id: '04',
-                  title: 'Set up in minutes',
-                  desc: 'No app to download, no developer needed. If you can chat on WhatsApp, you can run your digital menu.',
-                },
-              ].map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: !isLg, amount: 0.2 }}
-                  transition={{ duration: 0.45, delay: isLg ? index * 0.07 : 0 }}
-                  className="border-r border-b border-ink/10 dark:border-paper/10 p-6 sm:p-8 flex flex-col justify-between hover:bg-ink/[0.02] dark:hover:bg-paper/[0.02] transition-colors"
-                >
-                  <span className="font-mono text-xs text-ink/35 dark:text-paper/35">
-                    /{item.id}
-                  </span>
-                  <div className="mt-4 sm:mt-6">
-                    <h3 className="font-display text-base sm:text-lg font-bold text-ink dark:text-paper tracking-tight">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 text-xs sm:text-sm text-ink/65 dark:text-paper/60 leading-relaxed">
-                      {item.desc}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* 3. Live QR Placard Customizer Section (Modern & Compact) */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: !isLg, amount: isLg ? 0.25 : 0.1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="card p-6 sm:p-10 relative overflow-hidden group border border-ink/10 dark:border-paper/10 shadow-lg"
-      >
-        <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-brand-500/10 blur-3xl" />
-
-        <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] items-center relative z-10">
-          {/* Customizer Control Inputs */}
-          <div>
-            <p className="eyebrow flex items-center gap-2 text-xs">
-              <span className="h-1.5 w-1.5 rounded-full bg-whatsapp-500 animate-pulse" />
-              Live Generator
-            </p>
-            <h2 className="mt-2 font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink dark:text-paper">
-              Custom Table Tent in seconds
-            </h2>
-            <p className="mt-2 text-xs sm:text-sm text-ink/65 dark:text-paper/60 max-w-md">
-              Type your restaurant name and table number to preview your printable QR placard live.
-            </p>
-
-            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md">
-              <div>
-                <label htmlFor="sim-name" className="mb-1 block font-mono text-[10px] font-medium uppercase tracking-wider text-ink/55 dark:text-paper/50">
-                  Restaurant Name
-                </label>
-                <input
-                  id="sim-name"
-                  type="text"
-                  className="input-base py-2 text-xs"
-                  value={customName}
-                  onChange={(e) => setCustomName(e.target.value)}
-                  placeholder="Mama Nkechi’s Kitchen"
-                />
-              </div>
-              <div>
-                <label htmlFor="sim-table" className="mb-1 block font-mono text-[10px] font-medium uppercase tracking-wider text-ink/55 dark:text-paper/50">
-                  Table Number
-                </label>
-                <input
-                  id="sim-table"
-                  type="number"
-                  min="1"
-                  className="input-base py-2 text-xs"
-                  value={customTable}
-                  onChange={(e) => setCustomTable(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Interactive Floating QR Tent Placard */}
-          <div className="flex justify-center">
-            <motion.div
-              animate={{ y: [0, -6, 0] }}
-              transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-              whileHover={{ scale: 1.02 }}
-              className="relative w-full max-w-[240px] rounded-2xl border border-ink/15 bg-paper p-5 text-center shadow-xl dark:border-paper/15 dark:bg-zinc-900"
-            >
-              <div className="mx-auto mb-3 h-2 w-10 rounded-full bg-ink/10 dark:bg-paper/10" />
-              
-              <motion.p
-                key={customName}
-                initial={{ opacity: 0.8 }}
-                animate={{ opacity: 1 }}
-                className="font-display text-sm font-bold text-ink dark:text-paper truncate"
+            {/* Interactive Floating QR Tent Placard */}
+            <div className="flex justify-center">
+              <motion.div
+                animate={{ y: [0, -6, 0] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                whileHover={{ scale: 1.02 }}
+                className="relative w-full max-w-[240px] rounded-2xl border border-ink/15 bg-paper p-5 text-center shadow-xl dark:border-paper/15 dark:bg-zinc-900"
               >
-                {customName || 'My Restaurant'}
-              </motion.p>
-              
-              <div className="relative my-4 mx-auto grid h-[130px] w-[130px] place-items-center rounded-xl border border-ink/10 bg-white p-2.5 shadow-inner">
-                <QRCodeCanvas value={customMenuUrl} size={110} level="H" includeMargin />
-              </div>
+                <div className="mx-auto mb-3 h-2 w-10 rounded-full bg-ink/10 dark:bg-paper/10" />
 
-              <motion.span
-                key={customTable}
-                initial={{ scale: 0.95 }}
-                animate={{ scale: 1 }}
-                className="badge bg-brand-500/10 text-brand-600 dark:text-brand-400 border-brand-500/20 font-bold text-[10px] px-2.5 py-0.5"
-              >
-                TABLE {customTable || '1'}
-              </motion.span>
+                <motion.p
+                  key={customName}
+                  initial={{ opacity: 0.8 }}
+                  animate={{ opacity: 1 }}
+                  className="font-display text-sm font-bold text-ink dark:text-paper truncate"
+                >
+                  {customName || 'My Restaurant'}
+                </motion.p>
 
-              <p className="mt-3 font-mono text-[8px] uppercase tracking-widest text-ink/40 dark:text-paper/40">
-                📲 SCAN &amp; ORDER
-              </p>
-            </motion.div>
+                <div className="relative my-4 mx-auto grid h-[130px] w-[130px] place-items-center rounded-xl border border-ink/10 bg-white p-2.5 shadow-inner">
+                  <QRCodeCanvas value={customMenuUrl} size={110} level="H" includeMargin />
+                </div>
+
+                <motion.span
+                  key={customTable}
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                  className="badge bg-brand-500/10 text-brand-600 dark:text-brand-400 border-brand-500/20 font-bold text-[10px] px-2.5 py-0.5"
+                >
+                  TABLE {customTable || '1'}
+                </motion.span>
+
+                <p className="mt-3 font-mono text-[8px] uppercase tracking-widest text-ink/40 dark:text-paper/40">
+                  📲 SCAN &amp; ORDER
+                </p>
+              </motion.div>
+            </div>
           </div>
-        </div>
-      </motion.section>
+        </motion.section>
 
       </div>
 
@@ -629,7 +633,7 @@ export default function Landing() {
                 onChange={(e) => setMonthlySales(Number(e.target.value))}
               />
             </div>
-            
+
             <div className="border-t md:border-t-0 md:border-l border-paper/15 pt-6 md:pt-0 md:pl-8">
               <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-paper/60">
                 Your Annual Savings
@@ -649,8 +653,8 @@ export default function Landing() {
             <p className="text-xs sm:text-sm text-paper/65 text-center sm:text-left">
               Keep 100% of every order sent directly to your WhatsApp.
             </p>
-            <Link 
-              to="/dashboard" 
+            <Link
+              href="/dashboard"
               className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-500 hover:bg-brand-400 text-black px-7 py-3 text-xs sm:text-sm font-bold tracking-wide transition-all shadow-lg shadow-brand-500/20 hover:scale-[1.02] shrink-0"
             >
               Build your menu free →

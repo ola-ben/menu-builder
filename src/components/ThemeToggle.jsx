@@ -1,3 +1,5 @@
+'use client'
+
 import useTheme from '../hooks/useTheme.js'
 import Icon from './Icon.jsx'
 

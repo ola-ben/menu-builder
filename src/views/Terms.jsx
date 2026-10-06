@@ -1,6 +1,5 @@
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import Icon from '../components/Icon.jsx'
-import useSEO from '../hooks/useSEO.js'
 
 const SECTIONS = [
   {
@@ -34,16 +33,11 @@ const SECTIONS = [
 ]
 
 export default function Terms() {
-  useSEO({
-    title: 'Terms of Service | MenuLink',
-    description: 'Read the Terms of Service agreement for using MenuLink.',
-  })
-
   return (
     <div className="mx-auto max-w-3xl animate-fade-in space-y-10">
       <header>
         <div className="flex items-center gap-2">
-          <Link to="/" className="btn-ghost py-1 px-2.5 text-xs inline-flex items-center gap-1">
+          <Link href="/" className="btn-ghost py-1 px-2.5 text-xs inline-flex items-center gap-1">
             <Icon d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" className="h-3.5 w-3.5" />
             Home
           </Link>
@@ -79,7 +73,7 @@ export default function Terms() {
 
       <div className="text-center">
         <p className="text-xs text-slate-500">
-          Questions about our Terms? <Link to="/contact" className="text-brand-600 hover:underline dark:text-brand-400">Contact Support</Link>
+          Questions about our Terms? <Link href="/contact" className="text-brand-600 hover:underline dark:text-brand-400">Contact Support</Link>
         </p>
       </div>
     </div>

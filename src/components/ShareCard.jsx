@@ -1,3 +1,5 @@
+'use client'
+
 import { QRCodeCanvas } from 'qrcode.react'
 import Icon from './Icon.jsx'
 

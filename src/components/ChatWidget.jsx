@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useRef, useState } from 'react'
 import Icon from './Icon.jsx'
 import { WELCOME, askAssistant } from '../utils/assistant.js'

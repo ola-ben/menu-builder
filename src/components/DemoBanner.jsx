@@ -1,9 +1,17 @@
-import { useState } from 'react'
+'use client'
+
+import { useState, useEffect } from 'react'
 import Icon from './Icon.jsx'
 import { seedMockData, clearMockData } from '../utils/mockData.js'
 
 export default function DemoBanner() {
-  const isSimulated = localStorage.getItem('qr-menu:simulated_login') === 'true'
+  const [isSimulated, setIsSimulated] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsSimulated(localStorage.getItem('qr-menu:simulated_login') === 'true')
+    }
+  }, [])
 
   const handleSeed = () => {
     seedMockData()

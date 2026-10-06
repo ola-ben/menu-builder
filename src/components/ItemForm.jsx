@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 import ImageUpload from './ImageUpload.jsx'
 import { suggestItemDescription } from '../utils/copywriter.js'
@@ -47,7 +49,7 @@ export default function ItemForm({ initial, categories, onSubmit, onCancel }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label htmlFor="i-name" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Item name <span className="text-brand-600">*</span>
+            Item name <span className="text-brand-600 font-semibold">* (Required)</span>
           </label>
           <input
             id="i-name"
@@ -60,7 +62,7 @@ export default function ItemForm({ initial, categories, onSubmit, onCancel }) {
 
         <div>
           <label htmlFor="i-price" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Price (₦)
+            Price (₦) <span className="text-brand-600 font-semibold">* (Required)</span>
           </label>
           <input
             id="i-price"
@@ -75,7 +77,7 @@ export default function ItemForm({ initial, categories, onSubmit, onCancel }) {
 
         <div>
           <label htmlFor="i-cat" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Category
+            Category <span className="text-xs font-normal text-slate-400 dark:text-slate-500">(Optional)</span>
           </label>
           <select id="i-cat" className="input-base" value={form.categoryId} onChange={(e) => set('categoryId', e.target.value)}>
             <option value="">No category</option>
@@ -89,7 +91,7 @@ export default function ItemForm({ initial, categories, onSubmit, onCancel }) {
       <div>
         <div className="mb-1.5 flex items-center justify-between">
           <label htmlFor="i-desc" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Description
+            Description <span className="text-xs font-normal text-slate-400 dark:text-slate-500">(Optional)</span>
           </label>
           <button
             type="button"
@@ -117,7 +119,7 @@ export default function ItemForm({ initial, categories, onSubmit, onCancel }) {
       <div className="flex flex-wrap items-center gap-4">
         <div>
           <label htmlFor="i-tag" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Tag
+            Tag <span className="text-xs font-normal text-slate-400 dark:text-slate-500">(Optional)</span>
           </label>
           <select id="i-tag" className="input-base" value={form.tag} onChange={(e) => set('tag', e.target.value)}>
             {TAGS.map((t) => (

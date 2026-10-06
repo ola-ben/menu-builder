@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect, useRef } from 'react'
 import { supabase, isSupabaseEnabled, signOut } from '../lib/supabase.js'
 import useToast from '../hooks/useToast.js'
@@ -12,7 +14,14 @@ export default function AccountPanel() {
   const { toast, showToast } = useToast()
   const googleBtnRef = useRef(null)
 
-  const isSimulated = localStorage.getItem('qr-menu:simulated_login') === 'true'
+  const [isSimulated, setIsSimulated] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsSimulated(localStorage.getItem('qr-menu:simulated_login') === 'true')
+    }
+  }, [])
+
   const displayIsAnon = isSimulated ? false : isAnon
   const displayEmail = isSimulated ? 'owner@bukkaexpress.com' : userEmail
   const displayIsSupabaseEnabled = isSimulated ? true : isSupabaseEnabled
@@ -33,6 +42,12 @@ export default function AccountPanel() {
     }
   }, [])
 
+  const googleClientId =
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+    process.env.VITE_GOOGLE_CLIENT_ID ||
+    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GOOGLE_CLIENT_ID) ||
+    ''
+
   // Initialize Google Sign-In client library
   useEffect(() => {
     if (!displayIsAnon || !displayIsSupabaseEnabled) return
@@ -42,7 +57,7 @@ export default function AccountPanel() {
       if (typeof google !== 'undefined' && googleBtnRef.current) {
         try {
           google.accounts.id.initialize({
-            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+            client_id: googleClientId,
             callback: async (response) => {
               setError(null)
               setLoading(true)
@@ -88,7 +103,7 @@ export default function AccountPanel() {
     }, 500)
 
     return () => clearInterval(interval)
-  }, [displayIsAnon])
+  }, [displayIsAnon, displayIsSupabaseEnabled, googleClientId, showToast])
 
   const handleSignOut = async () => {
     if (confirm('Are you sure you want to sign out? Your menu details and dishes will remain safe in the database.')) {
@@ -134,9 +149,9 @@ export default function AccountPanel() {
             </div>
           )}
 
-          {!import.meta.env.VITE_GOOGLE_CLIENT_ID ? (
+          {!googleClientId ? (
             <div className="border border-amber-500/20 bg-amber-500/[0.06] p-4 text-sm text-amber-655 dark:text-amber-400 rounded-2xl">
-              ⚠️ Google Client ID is not configured. Please define <code>VITE_GOOGLE_CLIENT_ID</code> in your <code>.env</code> file.
+              ⚠️ Google Client ID is not configured. Please define <code>NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> in your <code>.env</code> file.
             </div>
           ) : (
             <div className="space-y-4 max-w-md">
@@ -179,8 +194,7 @@ export default function AccountPanel() {
             </button>
           </div>
         </div>
-      )
-}
+      )}
 
       <Toast toast={toast} />
     </div>

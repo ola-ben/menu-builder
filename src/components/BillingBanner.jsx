@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 import Icon from './Icon.jsx'
 import { fetchBilling, computeBilling } from '../utils/billing.js'

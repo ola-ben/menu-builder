@@ -1,3 +1,5 @@
+'use client'
+
 import { useCallback, useRef, useState } from 'react'
 
 /** Tiny toast manager: showToast(message, type) then auto-dismiss. */

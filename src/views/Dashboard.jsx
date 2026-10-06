@@ -1,8 +1,9 @@
+'use client'
+
 import { useMemo, useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useRouter } from 'next/navigation'
 import useMenu, { groupItemsByCategory } from '../hooks/useMenu.js'
 import useToast from '../hooks/useToast.js'
-import useSEO from '../hooks/useSEO.js'
 
 import Toast from '../components/Toast.jsx'
 import ImageUpload from '../components/ImageUpload.jsx'
@@ -41,10 +42,6 @@ function downloadQrPng(filename) {
 }
 
 export default function Dashboard() {
-  useSEO({
-    title: 'Restaurant Dashboard | MenuLink',
-  })
-
   const {
     restaurant,
     updateRestaurant,
@@ -58,8 +55,9 @@ export default function Dashboard() {
   const { toast, showToast } = useToast()
   const [editing, setEditing] = useState(null)
 
-  const navigate = useNavigate()
-  const { tab } = useParams()
+  const router = useRouter()
+  const params = useParams()
+  const tab = params?.tab
   const activeTab = tab || ''
 
   const hasRestaurant = Boolean(restaurant?.name?.trim() && restaurant?.whatsappNumber?.trim())
@@ -68,16 +66,17 @@ export default function Dashboard() {
   useEffect(() => {
     if (!restaurant) return
 
-    if (!hasRestaurant) {
+    let isCompleted = false
+    try {
+      isCompleted = localStorage.getItem('qr-menu:setup_wizard_completed') === 'true'
+    } catch (_) {}
+
+    if (!hasRestaurant && !isCompleted) {
       if (tab !== 'setup') {
-        navigate('/dashboard/setup', { replace: true })
-      }
-    } else {
-      if (tab === 'setup') {
-        navigate('/dashboard', { replace: true })
+        router.replace('/dashboard/setup')
       }
     }
-  }, [tab, hasRestaurant, restaurant, navigate])
+  }, [tab, hasRestaurant, restaurant, router])
 
   // Scroll to top on tab changes
   useEffect(() => {
@@ -85,7 +84,7 @@ export default function Dashboard() {
   }, [activeTab])
 
   const menuUrl = useMemo(
-    () => `${window.location.origin}/menu/${restaurant.id}`,
+    () => (typeof window !== 'undefined' ? `${window.location.origin}/menu/${restaurant.id}` : `/menu/${restaurant.id}`),
     [restaurant.id],
   )
   const isShareReady = Boolean(restaurant.name.trim() && restaurant.whatsappNumber.trim())

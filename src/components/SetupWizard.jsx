@@ -1,5 +1,7 @@
+'use client'
+
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import useMenu from '../hooks/useMenu.js'
 import ImageUpload from './ImageUpload.jsx'
 import ItemForm from './ItemForm.jsx'
@@ -11,11 +13,12 @@ import Toast from './Toast.jsx'
 
 export default function SetupWizard() {
   const { restaurant, updateRestaurant, addItem } = useMenu()
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const hasRestaurant = Boolean(restaurant?.name?.trim() && restaurant?.whatsappNumber?.trim())
 
   const [step, setStep] = useState(() => {
+    if (typeof window === 'undefined') return 1
     try {
       const saved = localStorage.getItem('qr-menu:setup_wizard_step')
       return saved ? parseInt(saved, 10) : 1
@@ -116,7 +119,7 @@ export default function SetupWizard() {
     }
   }, [])
 
-  // Redirect returning users who already have a configured menu
+  // Redirect returning users who already have a configured menu ONLY if they finished the wizard
   useEffect(() => {
     let savedStep = null
     try {
@@ -124,10 +127,11 @@ export default function SetupWizard() {
     } catch {
       // Ignore
     }
-    if (hasRestaurant && !savedStep) {
-      navigate('/dashboard', { replace: true })
+    const isCompleted = localStorage.getItem('qr-menu:setup_wizard_completed') === 'true'
+    if (hasRestaurant && isCompleted && !savedStep) {
+      router.replace('/dashboard')
     }
-  }, [hasRestaurant, navigate])
+  }, [hasRestaurant, router])
 
   const [detailsForm, setDetailsForm] = useState({
     name: '',
@@ -149,7 +153,7 @@ export default function SetupWizard() {
   }, [restaurant])
 
   const menuUrl = useMemo(
-    () => `${window.location.origin}/menu/${restaurant?.id}`,
+    () => (typeof window !== 'undefined' ? `${window.location.origin}/menu/${restaurant?.id}` : `/menu/${restaurant?.id}`),
     [restaurant?.id],
   )
 
@@ -175,6 +179,12 @@ export default function SetupWizard() {
     showToast('QR code saved 📥', 'success')
   }
 
+  const googleClientId =
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+    process.env.VITE_GOOGLE_CLIENT_ID ||
+    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GOOGLE_CLIENT_ID) ||
+    ''
+
   // Initialize Google Sign-In client library
   useEffect(() => {
     if (!isAccountStep || !isSupabaseEnabled) return
@@ -184,7 +194,7 @@ export default function SetupWizard() {
       if (typeof google !== 'undefined' && googleBtnRef.current) {
         try {
           google.accounts.id.initialize({
-            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+            client_id: googleClientId,
             callback: async (response) => {
               setAuthError(null)
               setAuthLoading(true)
@@ -227,7 +237,7 @@ export default function SetupWizard() {
     }, 500)
 
     return () => clearInterval(interval)
-  }, [isAccountStep])
+  }, [isAccountStep, googleClientId])
 
   const handleSaveDetails = (e) => {
     e.preventDefault()
@@ -249,11 +259,12 @@ export default function SetupWizard() {
 
   const handleFinish = () => {
     try {
+      localStorage.setItem('qr-menu:setup_wizard_completed', 'true')
       localStorage.removeItem('qr-menu:setup_wizard_step')
     } catch {
       // Ignore
     }
-    navigate('/dashboard')
+    router.replace('/dashboard')
   }
 
   // Scroll to top of the page on step changes
@@ -309,17 +320,17 @@ export default function SetupWizard() {
                   <span
                     className={`grid h-6 w-6 place-items-center rounded-full font-mono text-xs font-semibold ${
                       isCompleted
-                        ? 'bg-green-600 text-white'
+                        ? 'bg-whatsapp-500 text-white'
                         : isActive
-                        ? 'bg-brand-600 text-white border border-brand-600'
-                        : 'border border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-500'
+                        ? 'bg-brand-500 text-white shadow-glow'
+                        : 'bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
                     }`}
                   >
                     {isCompleted ? '✓' : s.num}
                   </span>
                   <span
-                    className={`hidden sm:inline font-mono text-[10px] uppercase tracking-wider ${
-                      isActive ? 'text-slate-800 dark:text-white font-semibold' : isCompleted ? 'text-slate-500 dark:text-slate-400' : 'text-slate-400 dark:text-slate-500'
+                    className={`hidden sm:inline text-xs font-medium ${
+                      isActive ? 'text-slate-900 dark:text-white font-semibold' : 'text-slate-400 dark:text-slate-500'
                     }`}
                   >
                     {s.label}
@@ -327,8 +338,8 @@ export default function SetupWizard() {
                 </div>
                 {idx < STEPS_META.length - 1 && (
                   <div
-                    className={`h-px flex-1 min-w-[20px] ${
-                      step > s.num ? 'bg-green-600' : 'bg-slate-200 dark:bg-slate-800'
+                    className={`h-0.5 flex-1 ${
+                      step > s.num ? 'bg-whatsapp-500' : 'bg-slate-200 dark:bg-slate-800'
                     }`}
                   />
                 )}
@@ -358,9 +369,9 @@ export default function SetupWizard() {
               </div>
             )}
 
-            {!import.meta.env.VITE_GOOGLE_CLIENT_ID ? (
+            {!googleClientId ? (
               <div className="border border-amber-500/20 bg-amber-500/[0.06] p-4 text-sm text-amber-650 dark:text-amber-400 rounded-2xl">
-                ⚠️ Google Client ID is not configured. Please define <code>VITE_GOOGLE_CLIENT_ID</code> in your <code>.env</code> file.
+                ⚠️ Google Client ID is not configured. Please define <code>NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> in your <code>.env</code> file.
               </div>
             ) : (
               <div className="space-y-4">
@@ -395,11 +406,12 @@ export default function SetupWizard() {
                     value={detailsForm.logoUrl}
                     onChange={(v) => setDetailsForm((f) => ({ ...f, logoUrl: v }))}
                     label="Restaurant logo"
+                    isOptional={true}
                   />
                 </div>
                 <div>
                   <label htmlFor="w-name" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Restaurant name <span className="text-brand-600">*</span>
+                    Restaurant name <span className="text-brand-600 font-semibold">* (Required)</span>
                   </label>
                   <input
                     id="w-name"
@@ -412,7 +424,7 @@ export default function SetupWizard() {
                 </div>
                 <div>
                   <label htmlFor="w-wa" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    WhatsApp number <span className="text-brand-600">*</span>
+                    WhatsApp number <span className="text-brand-600 font-semibold">* (Required)</span>
                   </label>
                   <input
                     id="w-wa"
@@ -426,7 +438,7 @@ export default function SetupWizard() {
                 </div>
                 <div className="sm:col-span-2">
                   <label htmlFor="w-tag" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Tagline
+                    Tagline <span className="text-xs font-normal text-slate-400 dark:text-slate-500">(Optional)</span>
                   </label>
                   <input
                     id="w-tag"

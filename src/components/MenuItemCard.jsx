@@ -1,3 +1,5 @@
+'use client'
+
 import Icon from './Icon.jsx'
 import { formatNaira } from '../utils/format.js'
 
@@ -9,15 +11,18 @@ const PHOTO_PLACEHOLDER =
  *  - "manage": shows edit/delete (dashboard)
  *  - "shop":   shows price + add/stepper (public menu); needs qty, onAdd, onInc, onDec
  */
-export default function MenuItemCard({ item, mode = 'shop', qty = 0, onAdd, onInc, onDec, onEdit, onDelete }) {
+export default function MenuItemCard({ item, mode = 'shop', qty = 0, onAdd, onInc, onDec, onEdit, onDelete, onPreview }) {
   const out = item.available === false
 
   return (
     <div className="card card-hover flex gap-3 p-3">
-      {/* Thumbnail */}
-      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800">
+      {/* Thumbnail with lightbox click */}
+      <div 
+        onClick={() => onPreview?.(item)}
+        className={`relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 ${onPreview ? 'cursor-pointer group' : ''}`}
+      >
         {item.imageUrl ? (
-          <img src={item.imageUrl} alt={item.name} loading="lazy" className="h-full w-full object-cover" />
+          <img src={item.imageUrl} alt={item.name} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
         ) : (
           <div className="grid h-full w-full place-items-center text-slate-300 dark:text-slate-600">
             <Icon d={PHOTO_PLACEHOLDER} className="h-8 w-8" />
@@ -33,7 +38,12 @@ export default function MenuItemCard({ item, mode = 'shop', qty = 0, onAdd, onIn
       {/* Details */}
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-slate-900 dark:text-white">{item.name}</h3>
+          <h3 
+            onClick={() => onPreview?.(item)}
+            className={`font-semibold text-slate-900 dark:text-white ${onPreview ? 'cursor-pointer hover:text-brand-500 transition-colors' : ''}`}
+          >
+            {item.name}
+          </h3>
           {item.tag && (
             <span className="shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
               {item.tag}

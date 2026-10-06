@@ -1,16 +1,19 @@
+'use client'
+
 import { useState, useEffect } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const links = [
-  { to: '/', label: 'Home', end: true },
-  { to: '/dashboard', label: 'My Menu' },
-  { to: '/contact', label: 'Contact' },
+  { href: '/', label: 'Home' },
+  { href: '/dashboard', label: 'My Menu' },
+  { href: '/contact', label: 'Contact' },
 ]
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { pathname } = useLocation()
+  const pathname = usePathname()
   const isHome = pathname === '/'
 
   // Lock body scrolling when mobile menu is open
@@ -33,7 +36,7 @@ export default function Navbar() {
           : "sticky top-0 z-20 border-b border-ink/12 bg-paper/90 backdrop-blur-sm dark:border-paper/12 dark:bg-ink/90"
       }>
         <nav className="mx-auto flex max-w-5xl lg:max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <Link to="/" className="group flex items-center gap-2.5">
+          <Link href="/" className="group flex items-center gap-2.5">
             <span className={`grid h-9 w-9 place-items-center transition-colors ${
               isHome 
                 ? 'bg-white text-ink group-hover:bg-whatsapp-600 group-hover:text-white' 
@@ -55,13 +58,13 @@ export default function Navbar() {
           {/* Desktop Navigation Links */}
           <div className="hidden sm:flex items-center gap-2">
             <ul className="flex items-center gap-1">
-              {links.map(({ to, label, end }) => (
-                <li key={to}>
-                  <NavLink
-                    to={to}
-                    end={end}
-                    className={({ isActive }) =>
-                      `relative px-3 py-2 font-mono text-xs uppercase tracking-wider transition-colors ${
+              {links.map(({ href, label }) => {
+                const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href)
+                return (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      className={`relative px-3 py-2 font-mono text-xs uppercase tracking-wider transition-colors ${
                         isHome 
                           ? isActive 
                             ? 'text-white' 
@@ -69,22 +72,18 @@ export default function Navbar() {
                           : isActive
                             ? 'text-ink dark:text-paper'
                             : 'text-ink/45 hover:text-ink dark:text-paper/45 dark:hover:text-paper'
-                      }`
-                    }
-                  >
-                    {({ isActive }) => (
-                      <>
-                        {label}
-                        {isActive && (
-                          <span className={`absolute inset-x-3 bottom-0 h-px ${
-                            isHome ? 'bg-white' : 'bg-whatsapp-600'
-                          }`} />
-                        )}
-                      </>
-                    )}
-                  </NavLink>
-                </li>
-              ))}
+                      }`}
+                    >
+                      {label}
+                      {isActive && (
+                        <span className={`absolute inset-x-3 bottom-0 h-px ${
+                          isHome ? 'bg-white' : 'bg-whatsapp-600'
+                        }`} />
+                      )}
+                    </Link>
+                  </li>
+                )
+              })}
             </ul>
           </div>
 
@@ -119,7 +118,7 @@ export default function Navbar() {
             {/* Top Bar inside mobile menu */}
             <div className="flex items-center justify-between">
               <Link
-                to="/"
+                href="/"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="group flex items-center gap-2.5"
               >
@@ -150,34 +149,34 @@ export default function Navbar() {
               <div className="pointer-events-none absolute h-56 w-56 rounded-full bg-gradient-to-t from-brand-500/25 via-amber-500/15 to-transparent blur-3xl" />
 
               <nav className="relative z-10 flex flex-col items-center gap-8 text-center">
-                {links.map(({ to, label, end }, index) => (
-                  <motion.div
-                    key={to}
-                    initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 + index * 0.05, duration: 0.25, ease: 'easeOut' }}
-                  >
-                    <NavLink
-                      to={to}
-                      end={end}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={({ isActive }) =>
-                        `block font-display text-3xl font-bold tracking-tight transition-all duration-200 ${
+                {links.map(({ href, label }, index) => {
+                  const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href)
+                  return (
+                    <motion.div
+                      key={href}
+                      initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 + index * 0.05, duration: 0.25, ease: 'easeOut' }}
+                    >
+                      <Link
+                        href={href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`block font-display text-3xl font-bold tracking-tight transition-all duration-200 ${
                           isActive
                             ? 'text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]'
                             : 'text-white/70 hover:text-white hover:scale-105'
-                        }`
-                      }
-                    >
-                      {label}
-                    </NavLink>
-                  </motion.div>
-                ))}
+                        }`}
+                      >
+                        {label}
+                      </Link>
+                    </motion.div>
+                  )
+                })}
               </nav>
             </div>
 
             {/* Bottom Sign In Action Button */}
             <div className="border-t border-white/10 pt-6">
               <Link
-                to="/dashboard"
+                href="/dashboard"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="inline-flex w-full items-center justify-center rounded-full bg-white py-4 text-center font-display text-sm font-bold tracking-normal text-ink shadow-lg transition-all duration-200 hover:bg-paper hover:scale-[1.02] active:scale-[0.98]"
               >

@@ -1,8 +1,10 @@
+'use client'
+
 import { useRef, useState } from 'react'
 import Icon from './Icon.jsx'
 import { resizeImageToBlob, blobToDataUrl, uploadImage } from '../lib/storage.js'
 
-export default function ImageUpload({ value, onChange, label = 'Photo', rounded = 'rounded-xl' }) {
+export default function ImageUpload({ value, onChange, label = 'Photo', rounded = 'rounded-xl', isOptional = true }) {
   const inputRef = useRef(null)
   const [busy, setBusy] = useState(false)
 
@@ -26,7 +28,11 @@ export default function ImageUpload({ value, onChange, label = 'Photo', rounded 
 
   return (
     <div>
-      {label && <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>}
+      {label && (
+        <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+          {label} {isOptional && <span className="text-xs font-normal text-slate-400 dark:text-slate-500">(Optional)</span>}
+        </span>
+      )}
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -40,11 +46,14 @@ export default function ImageUpload({ value, onChange, label = 'Photo', rounded 
           ) : value ? (
             <img src={value} alt="" className="h-full w-full object-cover" />
           ) : (
-            <Icon d="M3 16.5V18a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18v-1.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" className="h-6 w-6" />
+            <div className="flex flex-col items-center justify-center p-1 text-center">
+              <Icon d="M3 16.5V18a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18v-1.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" className="h-5 w-5" />
+              <span className="mt-1 font-mono text-[9px] font-semibold uppercase tracking-wider text-slate-400">Optional</span>
+            </div>
           )}
         </button>
         <div className="text-xs text-slate-500 dark:text-slate-400">
-          <p>{busy ? 'Uploading…' : 'Tap to upload a clear photo.'}</p>
+          <p>{busy ? 'Uploading…' : 'Tap to upload a clear photo (optional).'}</p>
           {value && (
             <button type="button" onClick={() => onChange('')} className="mt-1 font-semibold text-rose-500 hover:underline">
               Remove

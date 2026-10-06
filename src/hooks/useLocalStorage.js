@@ -1,8 +1,11 @@
+'use client'
+
 import { useCallback, useEffect, useState } from 'react'
 
 /** useState that persists to localStorage and stays in sync across tabs. */
 export default function useLocalStorage(key, initialValue) {
   const [value, setValue] = useState(() => {
+    if (typeof window === 'undefined') return initialValue
     try {
       const raw = localStorage.getItem(key)
       return raw != null ? JSON.parse(raw) : initialValue

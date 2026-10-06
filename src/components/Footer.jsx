@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import Icon, { WhatsappIcon, TikTokIcon } from './Icon.jsx'
 
 const WHATSAPP = 'https://wa.me/2347063026374'
@@ -23,9 +23,9 @@ export default function Footer() {
             © {new Date().getFullYear()} <span className="font-display font-bold text-gradient">MenuLink</span>. Your menu, one scan away.
           </p>
           <div className="flex justify-center gap-4 text-xs text-slate-400 dark:text-slate-500 sm:justify-start">
-            <Link to="/terms" className="hover:text-brand-600 transition-colors dark:hover:text-brand-400">Terms of Service</Link>
+            <Link href="/terms" className="hover:text-brand-600 transition-colors dark:hover:text-brand-400">Terms of Service</Link>
             <span className="text-slate-200 dark:text-slate-800">•</span>
-            <Link to="/privacy" className="hover:text-brand-600 transition-colors dark:hover:text-brand-400">Privacy Policy</Link>
+            <Link href="/privacy" className="hover:text-brand-600 transition-colors dark:hover:text-brand-400">Privacy Policy</Link>
           </div>
         </div>
 
@@ -43,7 +43,7 @@ export default function Footer() {
           <a href={PORTFOLIO} target="_blank" rel="noopener noreferrer" aria-label="My portfolio website" className={iconCls}>
             <Icon d={GLOBE_ICON} className="h-4 w-4" />
           </a>
-          <Link to="/contact" aria-label="Contact page" className={iconCls}>
+          <Link href="/contact" aria-label="Contact page" className={iconCls}>
             <Icon d={CHAT_ICON} className="h-4 w-4" />
           </Link>
         </div>

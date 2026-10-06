@@ -1,41 +1,68 @@
+'use client'
+
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { fetchMenuById, groupItemsByCategory } from '../hooks/useMenu.js'
 import useToast from '../hooks/useToast.js'
 import Toast from '../components/Toast.jsx'
 import MenuItemCard from '../components/MenuItemCard.jsx'
 import Icon, { WhatsappIcon } from '../components/Icon.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
+import ReviewModal from '../components/ReviewModal.jsx'
+import ReviewsList from '../components/ReviewsList.jsx'
+import DishLightbox from '../components/DishLightbox.jsx'
 import { formatNaira } from '../utils/format.js'
 import { buildWhatsappLink, buildMenuOrderMessage } from '../utils/whatsapp.js'
 import { createOrder } from '../utils/orders.js'
 import { fetchBilling, computeBilling } from '../utils/billing.js'
-import useSEO from '../hooks/useSEO.js'
+import { fetchMenuReviews, computeRatingStats } from '../utils/reviews.js'
 
-export default function Menu() {
-  const { menuId } = useParams()
+export default function Menu({ menuId: propMenuId }) {
+  const params = useParams()
+  const menuId = propMenuId || params?.menuId
   const { toast, showToast } = useToast()
-  // undefined = still loading, null = not found, object = loaded
+
+  // Data states
   const [restaurant, setRestaurant] = useState(undefined)
   const [billing, setBilling] = useState(undefined)
   const [cart, setCart] = useState({}) // { [itemId]: qty }
   const [cartOpen, setCartOpen] = useState(false)
+
+  // Reviews & Lightbox states
+  const [reviews, setReviews] = useState([])
+  const [reviewModalOpen, setReviewModalOpen] = useState(false)
+  const [reviewsDrawerOpen, setReviewsDrawerOpen] = useState(false)
+  const [reviewItem, setReviewItem] = useState(null)
+  const [lightboxDish, setLightboxDish] = useState(null)
 
   useEffect(() => {
     let cancelled = false
     setRestaurant(undefined)
     setBilling(undefined)
     setCart({})
+    setReviews([])
+
+    if (!menuId) return
+
     fetchMenuById(menuId).then(async (r) => {
       if (cancelled) return
       setRestaurant(r)
       if (r) {
-        const row = await fetchBilling(r.id)
-        if (!cancelled) setBilling(computeBilling(row))
+        // Fetch billing and reviews in parallel
+        const [row, revs] = await Promise.all([
+          fetchBilling(r.id),
+          fetchMenuReviews(r.id)
+        ])
+        if (!cancelled) {
+          setBilling(computeBilling(row))
+          setReviews(revs || [])
+        }
       } else {
         setBilling(null)
       }
     })
+
     return () => {
       cancelled = true
     }
@@ -45,31 +72,8 @@ export default function Menu() {
   const notFound = !loading && !restaurant
   const paused = !loading && restaurant && billing && !billing.live
 
-  let seoTitle = 'Loading Menu… | MenuLink'
-  let seoDesc = 'Build a digital menu and take orders on WhatsApp.'
-  let seoOgImage = undefined
-  let seoOgUrl = undefined
-
-  if (notFound) {
-    seoTitle = 'Menu Not Found | MenuLink'
-  } else if (paused) {
-    seoTitle = `${restaurant?.name || 'Menu'} is Paused | MenuLink`
-  } else if (restaurant) {
-    seoTitle = `${restaurant.name} | MenuLink`
-    seoDesc = restaurant.tagline || `Scan, browse our menu, and order straight from WhatsApp.`
-    seoOgImage = restaurant.logoUrl || 'https://menulink.vercel.app/og-cover.png'
-    seoOgUrl = `https://menulink.vercel.app/menu/${menuId}`
-  }
-
-  useSEO({
-    title: seoTitle,
-    description: seoDesc,
-    ogImage: seoOgImage,
-    ogUrl: seoOgUrl,
-  })
-
-
   const groups = useMemo(() => groupItemsByCategory(restaurant), [restaurant])
+  const reviewStats = useMemo(() => computeRatingStats(reviews), [reviews])
 
   const inc = (item) => setCart((c) => ({ ...c, [item.id]: (c[item.id] ?? 0) + 1 }))
   const dec = (item) =>
@@ -104,13 +108,21 @@ export default function Menu() {
       showToast('This menu has no WhatsApp number set.', 'error')
       return
     }
-    // Log the order (fire-and-forget) so it shows in the vendor's dashboard.
+    // Log the order (fire-and-forget) so it shows in vendor's dashboard
     createOrder(restaurant.id, {
       items: lines.map((l) => ({ name: l.name, qty: l.qty, priceNaira: l.priceNaira })),
       total,
     })
     window.open(link, '_blank', 'noopener')
   }
+
+  const handleReviewAdded = (newReview) => {
+    setReviews((prev) => [newReview, ...prev])
+    showToast('Review submitted successfully! Thank you.', 'success')
+  }
+
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
+  const tableNumber = searchParams?.get('table')
 
   if (loading) {
     return (
@@ -162,10 +174,17 @@ export default function Menu() {
       {/* Top bar */}
       <div className="sticky top-0 z-30 border-b border-white/40 bg-white/70 backdrop-blur-xl dark:border-white/5 dark:bg-slate-950/70">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-          <Link to="/" className="text-sm font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-            🍽️ Powered by MenuLink
+          <Link to="/" className="text-sm font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center gap-1.5">
+            🍽️ <span className="font-display font-bold text-ink dark:text-paper">MenuLink</span>
           </Link>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            {tableNumber && (
+              <span className="rounded-full bg-brand-500/10 px-2.5 py-0.5 font-mono text-[11px] font-bold text-brand-600 dark:text-brand-400 border border-brand-500/20">
+                Table {tableNumber}
+              </span>
+            )}
+            <ThemeToggle />
+          </div>
         </div>
       </div>
 
@@ -182,11 +201,59 @@ export default function Menu() {
         <h1 className="mt-5 font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
           {restaurant.name}
         </h1>
-        {restaurant.tagline && <p className="mx-auto mt-3 max-w-md text-slate-600 dark:text-slate-400">{restaurant.tagline}</p>}
+        {restaurant.tagline && <p className="mx-auto mt-2 max-w-md text-slate-600 dark:text-slate-400">{restaurant.tagline}</p>}
+
+        {/* Rating Badges & Review Triggers */}
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setReviewsDrawerOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/25 bg-amber-500/10 px-3.5 py-1 text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition-colors shadow-sm"
+          >
+            <span>★</span>
+            <span>{reviewStats.average} ({reviewStats.count} {reviewStats.count === 1 ? 'review' : 'reviews'})</span>
+            <span className="text-ink/40 dark:text-paper/40 font-normal ml-0.5">• View</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setReviewItem(null)
+              setReviewModalOpen(true)
+            }}
+            className="inline-flex items-center gap-1 rounded-full border border-ink/15 bg-paper px-3.5 py-1 text-xs font-semibold text-ink/70 hover:bg-ink/5 dark:border-paper/15 dark:bg-zinc-800 dark:text-paper/70 dark:hover:bg-paper/5 transition-colors shadow-sm"
+          >
+            <span>✍️ Rate Dining</span>
+          </button>
+        </div>
+
         <div aria-hidden className="mx-auto mt-5 h-1 w-16 rounded-full bg-gradient-to-r from-brand-500 to-amber-400" />
       </header>
 
-      {/* Menu */}
+      {/* Sticky Category Quick-Scroll Navigation */}
+      {groups.length > 1 && (
+        <div className="sticky top-[53px] z-20 border-b border-ink/10 bg-paper/85 px-4 py-2.5 backdrop-blur-md dark:border-paper/10 dark:bg-zinc-950/85">
+          <div className="mx-auto max-w-3xl flex items-center gap-2 overflow-x-auto no-scrollbar">
+            {groups.map((g) => (
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById(`cat-${g.id}`)
+                  if (el) {
+                    const y = el.getBoundingClientRect().top + window.scrollY - 115
+                    window.scrollTo({ top: y, behavior: 'smooth' })
+                  }
+                }}
+                className="whitespace-nowrap rounded-full border border-ink/10 bg-ink/[0.03] px-3.5 py-1 text-xs font-semibold text-ink/75 hover:border-brand-500 hover:text-brand-600 dark:border-paper/10 dark:bg-paper/[0.03] dark:text-paper/75 dark:hover:border-brand-400 dark:hover:text-brand-400 transition-colors shrink-0"
+              >
+                {g.name} <span className="opacity-60 text-[10px]">({g.items.length})</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Menu Sections */}
       <main className="mx-auto max-w-3xl px-4 py-8">
         {groups.length === 0 ? (
           <div className="card grid place-items-center gap-2 p-10 text-center">
@@ -195,7 +262,7 @@ export default function Menu() {
         ) : (
           <div className="space-y-8">
             {groups.map((g) => (
-              <section key={g.id}>
+              <section key={g.id} id={`cat-${g.id}`} className="scroll-mt-28">
                 <h2 className="mb-4 flex items-center gap-3 font-display text-xl font-bold text-slate-900 dark:text-white">
                   {g.name}
                   <span className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent dark:from-slate-800" />
@@ -210,6 +277,7 @@ export default function Menu() {
                       onAdd={inc}
                       onInc={inc}
                       onDec={dec}
+                      onPreview={(dish) => setLightboxDish(dish)}
                     />
                   ))}
                 </div>
@@ -233,7 +301,7 @@ export default function Menu() {
             </button>
             <button type="button" onClick={sendOrder} className="btn-whatsapp px-5 py-2.5">
               <WhatsappIcon className="h-4 w-4" />
-              Order
+              Send Order
             </button>
           </div>
 
@@ -259,6 +327,43 @@ export default function Menu() {
           )}
         </div>
       )}
+
+      {/* Dish Lightbox Modal */}
+      <DishLightbox
+        isOpen={Boolean(lightboxDish)}
+        onClose={() => setLightboxDish(null)}
+        dish={lightboxDish}
+        onAddToCart={inc}
+        onReviewDish={(dish) => {
+          setReviewItem(dish)
+          setReviewModalOpen(true)
+        }}
+      />
+
+      {/* Write Review Modal */}
+      <ReviewModal
+        isOpen={reviewModalOpen}
+        onClose={() => {
+          setReviewModalOpen(false)
+          setReviewItem(null)
+        }}
+        menuId={restaurant?.id}
+        menuName={restaurant?.name}
+        preselectedItem={reviewItem}
+        onReviewAdded={handleReviewAdded}
+      />
+
+      {/* Reviews Drawer List */}
+      <ReviewsList
+        isOpen={reviewsDrawerOpen}
+        onClose={() => setReviewsDrawerOpen(false)}
+        reviews={reviews}
+        menuName={restaurant?.name}
+        onWriteReview={() => {
+          setReviewItem(null)
+          setReviewModalOpen(true)
+        }}
+      />
 
       <Toast toast={toast} />
     </div>
